@@ -1,7 +1,7 @@
 <template>
     <div :class="classes">
         <List
-            v-ref:left
+            ref="left"
             :prefix-cls="prefixCls + '-list'"
             :data="leftData"
             :render-format="renderFormat"
@@ -19,7 +19,7 @@
             :operations="operations"
             :left-active="leftValidKeysCount > 0"
             :right-active="rightValidKeysCount > 0"></Operation><List
-            v-ref:right
+            ref="right"
             :prefix-cls="prefixCls + '-list'"
             :data="rightData"
             :render-format="renderFormat"

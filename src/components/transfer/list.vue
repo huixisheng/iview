@@ -12,18 +12,22 @@
                     :query.sync="query"
                     :placeholder="filterPlaceholder"></Search>
             </div>
+            <!--
+                https://cn.vuejs.org/v2/guide/migration.html#插入文本之外的过滤器-移除
+                @todo v-for="item in showItems | filterBy filterData"
+            -->
             <ul :class="prefixCls + '-content'">
                 <li
-                    v-for="item in showItems | filterBy filterData"
+                    v-for="item in showItems"
                     :class="itemClasses(item)"
                     @click.prevent="select(item)">
                     <Checkbox :checked="isCheck(item)" :disabled="item.disabled"></Checkbox>
-                    <span>{{{ showLabel(item) }}}</span>
+                    <span v-html="showLabel(item)"></span>
                 </li>
                 <li :class="prefixCls + '-content-not-found'">{{ notFoundText }}</li>
             </ul>
         </div>
-        <div :class="prefixCls + '-footer'" v-if="showFooter" v-el:footer><slot></slot></div>
+        <div :class="prefixCls + '-footer'" v-if="showFooter" ref="footer"><slot></slot></div>
     </div>
 </template>
 <script>
@@ -115,10 +119,11 @@
         },
         created () {
             this.updateFilteredData();
-
         },
-        compiled () {
-            this.showFooter = this.$els.footer.innerHTML !== '';
+        mounted () {
+            if (this.$refs.footer) {
+                this.showFooter = this.$refs.footer.innerHTML !== '';
+            }
         },
         watch: {
             data () {

@@ -8,7 +8,7 @@
             :value="value"
             :disabled="disabled"
             @on-change="handleInputChange"></Input-number>
-        <div :class="[prefixCls + '-wrap']" v-el:slider @click.self="sliderClick">
+        <div :class="[prefixCls + '-wrap']" ref="slider" @click.self="sliderClick">
             <template v-if="showStops">
                 <div :class="[prefixCls + '-stop']" v-for="item in stops" :style="{ 'left': item + '%' }" @click.self="sliderClick"></div>
             </template>
@@ -18,7 +18,7 @@
                     :class="[prefixCls + '-button-wrap']"
                     :style="{left: firstPosition + '%'}"
                     @mousedown="onFirstButtonDown">
-                    <Tooltip :controlled="firstDragging" placement="top" :content="tipFormat(value[0])" :disabled="tipDisabled" :always="showTip === 'always'" v-ref:tooltip>
+                    <Tooltip :controlled="firstDragging" placement="top" :content="tipFormat(value[0])" :disabled="tipDisabled" :always="showTip === 'always'" ref="tooltip">
                         <div :class="button1Classes"></div>
                     </Tooltip>
                 </div>
@@ -26,7 +26,7 @@
                     :class="[prefixCls + '-button-wrap']"
                     :style="{left: secondPosition + '%'}"
                     @mousedown="onSecondButtonDown">
-                    <Tooltip :controlled="secondDragging" placement="top" :content="tipFormat(value[1])" :disabled="tipDisabled" :always="showTip === 'always'" v-ref:tooltip2>
+                    <Tooltip :controlled="secondDragging" placement="top" :content="tipFormat(value[1])" :disabled="tipDisabled" :always="showTip === 'always'" ref="tooltip2">
                         <div :class="button2Classes"></div>
                     </Tooltip>
                 </div>
@@ -36,7 +36,7 @@
                     :class="[prefixCls + '-button-wrap']"
                     :style="{left: singlePosition + '%'}"
                     @mousedown="onSingleButtonDown">
-                    <Tooltip :controlled="dragging" placement="top" :content="tipFormat(value)" :disabled="tipDisabled" :always="showTip === 'always'" v-ref:tooltip>
+                    <Tooltip :controlled="dragging" placement="top" :content="tipFormat(value)" :disabled="tipDisabled" :always="showTip === 'always'" ref="tooltip">
                         <div :class="buttonClasses"></div>
                     </Tooltip>
                 </div>
@@ -179,7 +179,7 @@
                 return result;
             },
             sliderWidth () {
-                return parseInt(getStyle(this.$els.slider, 'width'), 10);
+                return parseInt(getStyle(this.$refs.slider, 'width'), 10);
             },
             tipDisabled () {
                 return this.tipFormat(this.value[0]) === null || this.showTip === 'never';
@@ -240,7 +240,7 @@
             sliderClick (event) {
                 if (this.disabled) return;
                 const currentX = event.clientX;
-                const sliderOffsetLeft = this.$els.slider.getBoundingClientRect().left;
+                const sliderOffsetLeft = this.$refs.slider.getBoundingClientRect().left;
                 const newPos = (currentX - sliderOffsetLeft) / this.sliderWidth * 100;
 
                 if (this.range) {
@@ -418,7 +418,7 @@
                 this.secondPosition = (val - this.min) / (this.max - this.min) * 100;
             }
         },
-        ready () {
+        mounted () {
             if (this.range) {
                 const isArray = Array.isArray(this.value);
                 if (!isArray || (isArray && this.value.length != 2) || (isArray && (isNaN(this.value[0]) || isNaN(this.value[1])))) {

@@ -1,11 +1,11 @@
 <template>
     <table cellspacing="0" cellpadding="0" border="0" :style="style">
         <colgroup>
-            <col v-for="column in columns" :width="setCellWidth(column, $index, false)">
+            <col v-for="(column, index) in columns" :width="setCellWidth(column, index, false)">
         </colgroup>
         <tbody :class="[prefixCls + '-tbody']">
             <tr
-                v-for="(index, row) in data"
+                v-for="(row, index) in data"
                 :class="rowClasses(row._index)"
                 @mouseenter.stop="handleMouseIn(row._index)"
                 @mouseleave.stop="handleMouseOut(row._index)"

@@ -1,7 +1,7 @@
 <template>
     <ul :class="classes">
-        <li v-for="item in data" :class="itemCls(item)">
-            <span :class="arrowCls(item)" @click="setExpand(item.disabled, $index)">
+        <li v-for="(item, index) in data" :class="itemCls(item)">
+            <span :class="arrowCls(item)" @click="setExpand(item.disabled, index)">
                 <Icon type="arrow-right-b"></Icon>
             </span>
             <Checkbox
@@ -9,8 +9,8 @@
                 :checked="item.checked && item.childrenCheckedStatus == 2"
                 :disabled="item.disabled || item.disableCheckbox"
                 :indeterminate="item.checked && item.childrenCheckedStatus == 1"
-                @click.prevent="setCheck(item.disabled||item.disableCheckbox,$index)"></Checkbox>
-            <a :class="titleCls(item)" @click="setSelect(item.disabled, $index)">
+                @click.prevent="setCheck(item.disabled||item.disableCheckbox,index)"></Checkbox>
+            <a :class="titleCls(item)" @click="setSelect(item.disabled, index)">
                 <span :class="[prefixCls + '-title']" v-html="item.title"></span>
             </a>
             <tree
@@ -18,7 +18,7 @@
                 v-show="item.expand"
                 :class="expandCls(item)"
                 :data.sync="item.children"
-                :key="this.key+'.'+$index"
+                :key="key + '.' + index"
                 :multiple="multiple"
                 :show-checkbox="showCheckbox"
                 transition="slide-up"></tree>
@@ -123,6 +123,7 @@
             },
             preHandle () {
                 for (let [i,item] of this.data.entries()) {
+                    // @todo
                     if (!item.children || !item.children.length) {
                         this.$set(`data[${i}].isLeaf`, true);
                         this.$set(`data[${i}].childrenCheckedStatus`, 2);
@@ -215,7 +216,7 @@
                 }
             }
         },
-        ready(){
+        mounted (){
             this.setKey();
             this.preHandle();
 

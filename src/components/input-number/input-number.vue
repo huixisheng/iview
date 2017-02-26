@@ -23,7 +23,7 @@
                 @blur="blur"
                 @keydown.stop="keyDown"
                 @change="change"
-                :value="value">
+                :value="propValue">
         </div>
     </div>
 </template>
@@ -92,7 +92,8 @@
             return {
                 focused: false,
                 upDisabled: false,
-                downDisabled: false
+                downDisabled: false,
+                propValue: 1
             };
         },
         computed: {
@@ -164,7 +165,7 @@
                 }
 
                 const targetVal = Number(e.target.value);
-                let val = Number(this.value);
+                let val = Number(this.propValue);
                 const step = Number(this.step);
                 if (isNaN(val)) {
                     return false;
@@ -196,9 +197,9 @@
             },
             setValue (val) {
                 this.$nextTick(() => {
-                    this.value = val;
+                    this.propValue = val;
                     this.$emit('on-change', val);
-                    this.$dispatch('on-form-change', val);
+                    this.$emit('on-form-change', val);
                 });
             },
             focus () {
@@ -224,7 +225,7 @@
 
                 if (isValueNumber(val)) {
                     val = Number(val);
-                    this.value = val;
+                    this.propValue = val;
 
                     if (val > max) {
                         this.setValue(max);
@@ -234,7 +235,7 @@
                         this.setValue(val);
                     }
                 } else {
-                    event.target.value = this.value;
+                    event.target.value = this.propValue;
                 }
             },
             changeVal (val) {
@@ -250,12 +251,18 @@
                 }
             }
         },
-        compiled () {
-            this.changeVal(this.value);
+        mounted () {
+            this.changeVal(this.propValue);
         },
         watch: {
             value (val) {
+                this.propValue = val;
+                // this.changeVal(val);
+            },
+            propValue (val) {
                 this.changeVal(val);
+                // @todo 名称
+                this.$emit('prop-change-value', val);
             }
         }
     };

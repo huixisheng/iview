@@ -5,7 +5,7 @@ const iconPrefixCls = 'ivu-icon';
 const prefixKey = 'ivu_message_key_';
 
 let defaultDuration = 1.5;
-let top;
+let top = 16;
 let messageInstance;
 let key = 1;
 
@@ -42,7 +42,7 @@ function notice (content, duration = defaultDuration, type, onClose) {
     let instance = getMessageInstance();
 
     instance.notice({
-        key: `${prefixKey}${key}`,
+        keyProp: `${prefixKey}${key}`,
         duration: duration,
         style: {},
         transitionName: 'move-up',

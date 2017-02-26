@@ -48,8 +48,20 @@
                 if (this.disabled) {
                     return false;
                 }
-
-                this.$dispatch('on-select-selected', this.value);
+                // this.$dispatch('on-select-selected', this.value);
+                // @todo https://github.com/ElemeFE/element/blob/dev/src/mixins/emitter.js
+                // this.$emit('on-select-selected', this.value);
+                let parent = this.$parent;
+                let componentTag = parent.$options._componentTag;
+                while (parent && (!componentTag || componentTag !== 'i-select')) {
+                    parent = parent.$parent;
+                    if (parent) {
+                        componentTag = parent.$options._componentTag;
+                    }
+                }
+                if (parent) {
+                    parent.$emit('on-select-selected', this.value);
+                }
             },
             blur () {
                 this.isFocus = false;
@@ -59,7 +71,7 @@
                 this.hidden = !new RegExp(parsedQuery, 'i').test(this.searchLabel);
             }
         },
-        compiled () {
+        mounted () {
             this.searchLabel = this.$el.innerHTML;
         },
         events: {

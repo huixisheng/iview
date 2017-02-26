@@ -2,6 +2,7 @@
 
 </style>
 <template>
+<div>
     <Steps :current="1" size="small">
         <Step title="已完成" content="这里是该步骤的描述信息这里是该步骤的描述信息这里是该步骤的描述信息"></Step>
         <Step title="进行中" content="这里是该步骤的描述信息"></Step>
@@ -41,8 +42,9 @@
         <Step title="步骤3"></Step>
         <Step title="步骤4"></Step>
     </Steps>
-    <i-button type="primary" @click="next">下一步</i-button>
-    <br><br>
+    <br>
+    <i-button type="primary" @click.native="next">下一步</i-button>
+    <br><br><br><br>
     <Steps :current="1" direction="vertical" size="small">
         <Step title="已完成" content="这里是该步骤的描述信息这里是该步骤的描述信息这里是该步骤的描述信息"></Step>
         <Step title="进行中" content="这里是该步骤的描述信息"></Step>
@@ -56,6 +58,7 @@
         <Step title="待进行" content="这里是该步骤的描述信息"></Step>
         <Step title="待进行" content="这里是该步骤的描述信息"></Step>
     </Steps>
+</div>
 </template>
 <script>
     import { Page, Steps, iButton } from 'iview';

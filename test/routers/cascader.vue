@@ -1,8 +1,10 @@
 <template>
-    {{ text }}
+<div>
+    <div v-text="text"></div>
     <Cascader :data="data" @on-change="handleChange">
         <a href="javascript:void(0)">选择</a>
     </Cascader>
+</div>
 </template>
 <script>
     export default {

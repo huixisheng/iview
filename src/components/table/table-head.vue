@@ -1,24 +1,24 @@
 <template>
     <table cellspacing="0" cellpadding="0" border="0" :style="styles">
         <colgroup>
-            <col v-for="column in columns" :width="setCellWidth(column, $index, true)">
+            <col v-for="(column, index) in columns" :width="setCellWidth(column, index, true)">
         </colgroup>
         <thead>
             <tr>
-                <th v-for="(index, column) in columns" :class="alignCls(column)">
+                <th v-for="(column, index) in columns" :class="alignCls(column)">
                     <div :class="cellClasses(column)">
                         <template v-if="column.type === 'selection'"><Checkbox :checked="isSelectAll" @on-change="selectAll"></Checkbox></template>
                         <template v-else>
-                            {{{ renderHeader(column, $index) }}}
+                            <div v-html="renderHeader(column, index)"></div>
                             <span :class="[prefixCls + '-sort']" v-if="column.sortable">
-                                <i class="ivu-icon ivu-icon-arrow-up-b" :class="{on: column._sortType === 'asc'}" @click="handleSort($index, 'asc')"></i>
-                                <i class="ivu-icon ivu-icon-arrow-down-b" :class="{on: column._sortType === 'desc'}" @click="handleSort($index, 'desc')"></i>
+                                <i class="ivu-icon ivu-icon-arrow-up-b" :class="{on: column._sortType === 'asc'}" @click="handleSort(index, 'asc')"></i>
+                                <i class="ivu-icon ivu-icon-arrow-down-b" :class="{on: column._sortType === 'desc'}" @click="handleSort(index, 'desc')"></i>
                             </span>
                             <Poptip
                                 v-if="isPopperShow(column)"
                                 :visible.sync="column._filterVisible"
                                 placement="bottom"
-                                @on-popper-hide="handleFilterHide($index)">
+                                @on-popper-hide="handleFilterHide(index)">
                                 <span :class="[prefixCls + '-filter']">
                                     <i class="ivu-icon ivu-icon-funnel" :class="{on: column._isFiltered}"></i>
                                 </span>
@@ -29,15 +29,15 @@
                                         </checkbox-group>
                                     </div>
                                     <div :class="[prefixCls + '-filter-footer']">
-                                        <i-button type="text" size="small" :disabled="!column._filterChecked.length" @click="handleFilter($index)">{{ t('i.table.confirmFilter') }}</i-button>
-                                        <i-button type="text" size="small" @click="handleReset($index)">{{ t('i.table.resetFilter') }}</i-button>
+                                        <i-button type="text" size="small" :disabled="!column._filterChecked.length" @click="handleFilter(index)">{{ t('i.table.confirmFilter') }}</i-button>
+                                        <i-button type="text" size="small" @click="handleReset(index)">{{ t('i.table.resetFilter') }}</i-button>
                                     </div>
                                 </div>
                                 <div slot="content" :class="[prefixCls + '-filter-list']" v-else>
                                     <ul :class="[prefixCls + '-filter-list-single']">
                                         <li
                                             :class="itemAllClasses(column)"
-                                            @click="handleReset($index)">{{ t('i.table.clearFilter') }}</li>
+                                            @click="handleReset(index)">{{ t('i.table.clearFilter') }}</li>
                                         <li
                                             :class="itemClasses(column, item)"
                                             v-for="item in column.filters"
@@ -78,8 +78,11 @@
         computed: {
             styles () {
                 const style = Object.assign({}, this.style);
-                const width = this.$parent.bodyHeight === 0 ? parseInt(this.style.width) : parseInt(this.style.width) + this.$parent.scrollBarWidth;
-                style.width = `${width}px`;
+                // @todo Cannot read property 'width' of undefined
+                if (this.style) {
+                    const width = this.$parent.bodyHeight === 0 ? parseInt(this.style.width) : parseInt(this.style.width) + this.$parent.scrollBarWidth;
+                    style.width = `${width}px`;
+                }
                 return style;
             },
             isSelectAll () {
@@ -121,9 +124,9 @@
                     }
                 ];
             },
-            renderHeader (column, $index) {
-                if ('renderHeader' in this.columns[$index]) {
-                    return this.columns[$index].renderHeader(column, $index);
+            renderHeader (column, index) {
+                if ('renderHeader' in this.columns[index]) {
+                    return this.columns[index].renderHeader(column, index);
                 } else {
                     return column.title || '#';
                 }

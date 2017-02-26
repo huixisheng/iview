@@ -1,5 +1,5 @@
 <template>
-    <i-form v-ref:form-validate :model="formValidate" :rules="ruleValidate" :label-width="100">
+    <i-form ref="form-validate" :model="formValidate" :rules="ruleValidate" :label-width="100">
         <Form-item label="输入框" prop="input">
             <i-input :value.sync="formValidate.input" placeholder="请输入"></i-input>
         </Form-item>

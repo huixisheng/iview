@@ -30,6 +30,11 @@
                 default: false
             }
         },
+        data () {
+            return {
+                propModel: ''
+            }
+        },
         computed: {
             classes () {
                 return [
@@ -42,26 +47,31 @@
                 ];
             }
         },
-        compiled () {
+        mounted () {
+            this.propModel = this.model;
             this.updateModel();
         },
         methods: {
             updateModel () {
-                const model = this.model;
+                const model = this.propModel;
                 this.$children.forEach((child) => {
                     child.selected = model == child.value;
                     child.group = true;
                 });
             },
             change (data) {
-                this.model = data.value;
+                this.propModel = data.value;
                 this.updateModel();
                 this.$emit('on-change', data.value);
-                this.$dispatch('on-form-change', data.value);
+                // $dispatch -> $emit
+                this.$emit('on-form-change', data.value);
             }
         },
         watch: {
-            model () {
+            model (val) {
+                this.propModel = val;
+            },
+            propModel () {
                 this.updateModel();
             }
         }

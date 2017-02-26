@@ -4,12 +4,12 @@
             <div :class="[prefixCls + '-nav-container']">
                 <div :class="[prefixCls + '-nav-wrap']">
                     <div :class="[prefixCls + '-nav-scroll']">
-                        <div :class="[prefixCls + '-nav']" v-el:nav>
+                        <div :class="[prefixCls + '-nav']" ref="nav">
                             <div :class="barClasses" :style="barStyle"></div>
-                            <div :class="tabCls(item)" v-for="item in navList" @click="handleChange($index)">
+                            <div :class="tabCls(item)" v-for="(item, index) in navList" @click="handleChange(index)">
                                 <Icon v-if="item.icon !== ''" :type="item.icon"></Icon>
                                 {{ item.label }}
-                                <Icon v-if="showClose(item)" type="ios-close-empty" @click.stop="handleRemove($index)"></Icon>
+                                <Icon v-if="showClose(item)" type="ios-close-empty" @click.stop="handleRemove(index)"></Icon>
                             </div>
                         </div>
                     </div>
@@ -139,7 +139,7 @@
             updateBar () {
                 this.$nextTick(() => {
                     const index = this.navList.findIndex((nav) => nav.key === this.activeKey);
-                    const prevTabs = this.$els.nav.querySelectorAll(`.${prefixCls}-tab`);
+                    const prevTabs = this.$refs.nav.querySelectorAll(`.${prefixCls}-tab`);
                     const tab = prevTabs[index];
                     this.barWidth = parseFloat(getStyle(tab, 'width'));
 

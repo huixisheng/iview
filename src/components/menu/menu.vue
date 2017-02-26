@@ -112,7 +112,7 @@
                 });
             }
         },
-        compiled () {
+        mounted () {
             this.updateActiveKey();
             this.updateOpened();
         },

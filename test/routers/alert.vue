@@ -1,4 +1,5 @@
 <template>
+<div>
     <Alert show-icon banner closable>消息提示文案</Alert>
     <Alert type="success" show-icon>成功提示文案</Alert>
     <Alert type="warning" show-icon banner>警告提示文案</Alert>
@@ -28,6 +29,7 @@
         <Icon type="ios-lightbulb-outline" slot="icon"></Icon>
         <template slot="desc">自定义图标文案自定义图标文案自定义图标文案自定义图标文案自定义图标文案</template>
     </Alert>
+</div>
 </template>
 <script>
     import { Alert, Icon } from 'iview';

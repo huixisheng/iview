@@ -21,7 +21,7 @@
                 return `${prefixCls}`;
             }
         },
-        compiled () {
+        mounted () {
             this.setActive();
         },
         methods: {

@@ -1,6 +1,6 @@
 <template>
     <li :class="classes" @mouseenter="handleMouseenter" @mouseleave="handleMouseleave">
-        <div :class="[prefixCls + '-submenu-title']" v-el:reference @click="handleClick">
+        <div :class="[prefixCls + '-submenu-title']" ref="reference" @click="handleClick">
             <slot name="title"></slot>
             <Icon type="ios-arrow-down" :class="[prefixCls + '-submenu-title-icon']"></Icon>
         </div>
@@ -10,7 +10,7 @@
             v-show="opened"
             placement="bottom"
             transition="slide-up"
-            v-ref:drop
+            ref="drop"
             :style="dropStyle"><slot></slot></Drop>
     </li>
 </template>

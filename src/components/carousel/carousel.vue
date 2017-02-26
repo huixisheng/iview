@@ -4,7 +4,7 @@
             <Icon type="chevron-left"></Icon>
         </button>
         <div :class="[prefixCls + '-list']">
-            <div :class="[prefixCls + '-track']" :style="trackStyles" v-el:slides>
+            <div :class="[prefixCls + '-track']" :style="trackStyles" ref="slides">
                 <slot></slot>
             </div>
         </div>
@@ -215,7 +215,7 @@
                 });
             }
         },
-        compiled () {
+        mounted () {
             this.updateSlides(true);
         },
         watch: {
@@ -233,7 +233,7 @@
                 this.updatePos();
             }
         },
-        ready () {
+        mounted () {
             this.handleResize();
             this.setAutoplay();
             window.addEventListener('resize', this.handleResize, false);

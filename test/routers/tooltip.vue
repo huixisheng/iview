@@ -15,6 +15,7 @@
     }
 </style>
 <template>
+<div>
     <div class="top">
         <Tooltip content="Top Left 文字提示" placement="top-start" @on-popper-hide="hide">
             <i-button>上左</i-button>
@@ -61,6 +62,7 @@
             <i-button>下右</i-button>
         </Tooltip>
     </div>
+</div>
 </template>
 <script>
     import { Tooltip, iButton, Message } from 'iview';

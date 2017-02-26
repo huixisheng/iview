@@ -1,8 +1,8 @@
 <template>
     <div :class="wrapClasses" :style="styles">
         <div :class="classes">
-            <div :class="[prefixCls + '-title']" v-if="showSlotHeader" v-el:title><slot name="header"></slot></div>
-            <div :class="[prefixCls + '-header']" v-if="showHeader" v-el:header @mousewheel="handleMouseWheel">
+            <div :class="[prefixCls + '-title']" v-if="showSlotHeader" ref="title"><slot name="header"></slot></div>
+            <div :class="[prefixCls + '-header']" v-if="showHeader" ref="header" @mousewheel="handleMouseWheel">
                 <table-head
                     :prefix-cls="prefixCls"
                     :style="tableStyle"
@@ -11,10 +11,11 @@
                     :columns-width="columnsWidth"
                     :data="rebuildData"></table-head>
             </div>
-            <div :class="[prefixCls + '-body']" :style="bodyStyle" v-el:body @scroll="handleBodyScroll"
-                v-show="!((!!noDataText && (!data || data.length === 0)) || (!!noFilteredDataText && (!rebuildData || rebuildData.length === 0)))">
+            <!-- v-show->v-if @todo -->
+            <div :class="[prefixCls + '-body']" :style="bodyStyle" ref="body" @scroll="handleBodyScroll"
+                v-if="!((!!noDataText && (!data || data.length === 0)) || (!!noFilteredDataText && (!rebuildData || rebuildData.length === 0)))">
                 <table-body
-                    v-ref:tbody
+                    ref="tbody"
                     :prefix-cls="prefixCls"
                     :style="tableStyle"
                     :columns="cloneColumns"
@@ -28,8 +29,7 @@
                 <table cellspacing="0" cellpadding="0" border="0">
                     <tbody>
                         <tr>
-                            <td :style="{ 'height': bodyStyle.height }">
-                              {{{!data || data.length === 0 ? noDataText : noFilteredDataText}}}
+                            <td :style="{ 'height': bodyStyle.height }" v-html="!data || data.length === 0 ? noDataText : noFilteredDataText">
                             </td>
                         </tr>
                     </tbody>
@@ -46,7 +46,7 @@
                         :columns-width.sync="columnsWidth"
                         :data="rebuildData"></table-head>
                 </div>
-                <div :class="[prefixCls + '-fixed-body']" :style="fixedBodyStyle" v-el:fixed-body>
+                <div :class="[prefixCls + '-fixed-body']" :style="fixedBodyStyle" ref="fixedBody">
                     <table-body
                         fixed="left"
                         :prefix-cls="prefixCls"
@@ -68,7 +68,7 @@
                         :columns-width.sync="columnsWidth"
                         :data="rebuildData"></table-head>
                 </div>
-                <div :class="[prefixCls + '-fixed-body']" :style="fixedBodyStyle" v-el:fixed-right-body>
+                <div :class="[prefixCls + '-fixed-body']" :style="fixedBodyStyle" ref="fixedRightBody">
                     <table-body
                         fixed="right"
                         :prefix-cls="prefixCls"
@@ -79,7 +79,7 @@
                         :obj-data="objData"></table-body>
                 </div>
             </div>
-            <div :class="[prefixCls + '-footer']" v-if="showSlotFooter" v-el:footer><slot name="footer"></slot></div>
+            <div :class="[prefixCls + '-footer']" v-if="showSlotFooter" ref="footer"><slot name="footer"></slot></div>
         </div>
     </div>
 </template>
@@ -312,7 +312,7 @@
                         let autoWidthIndex = -1;
                         if (allWidth) autoWidthIndex = this.cloneColumns.findIndex(cell => !cell.width);//todo 这行可能有问题
 
-                        if (this.data.length) {
+                        if (this.data.length && this.$refs.tbody) {
                             const $td = this.$refs.tbody.$el.querySelectorAll('tbody tr')[0].querySelectorAll('td');
                             for (let i = 0; i < $td.length; i++) {    // can not use forEach in Firefox
                                 const column = this.cloneColumns[i];
@@ -333,7 +333,9 @@
                         }
                     });
                     // get table real height,for fixed when set height prop,but height < table's height,show scrollBarWidth
-                    this.bodyRealHeight = parseInt(getStyle(this.$refs.tbody.$el, 'height'));
+                    if (this.$refs.tbody) {
+                        this.bodyRealHeight = parseInt(getStyle(this.$refs.tbody.$el, 'height'));
+                    }
                 });
             },
             handleMouseIn (_index) {
@@ -404,9 +406,9 @@
             fixedHeader () {
                 if (this.height) {
                     this.$nextTick(() => {
-                        const titleHeight = parseInt(getStyle(this.$els.title, 'height')) || 0;
-                        const headerHeight = parseInt(getStyle(this.$els.header, 'height')) || 0;
-                        const footerHeight = parseInt(getStyle(this.$els.footer, 'height')) || 0;
+                        const titleHeight = parseInt(getStyle(this.$refs.title, 'height')) || 0;
+                        const headerHeight = parseInt(getStyle(this.$refs.header, 'height')) || 0;
+                        const footerHeight = parseInt(getStyle(this.$refs.footer, 'height')) || 0;
                         this.bodyHeight = this.height - titleHeight - headerHeight - footerHeight;
                     });
                 } else {
@@ -417,14 +419,14 @@
                 this.cloneColumns.forEach((col) => col._filterVisible = false);
             },
             handleBodyScroll (event) {
-                if (this.showHeader) this.$els.header.scrollLeft = event.target.scrollLeft;
-                if (this.isLeftFixed) this.$els.fixedBody.scrollTop = event.target.scrollTop;
-                if (this.isRightFixed) this.$els.fixedRightBody.scrollTop = event.target.scrollTop;
+                if (this.showHeader) this.$refs.header.scrollLeft = event.target.scrollLeft;
+                if (this.isLeftFixed) this.$refs.fixedBody.scrollTop = event.target.scrollTop;
+                if (this.isRightFixed) this.$refs.fixedRightBody.scrollTop = event.target.scrollTop;
                 this.hideColumnFilter();
             },
             handleMouseWheel (event) {
                 const deltaX = event.deltaX;
-                const $body = this.$els.body;
+                const $body = this.$refs.body;
 
                 if (deltaX > 0) {
                     $body.scrollLeft = $body.scrollLeft + 10;
@@ -623,13 +625,14 @@
                 ExportCsv.download(params.filename, data);
             }
         },
-        compiled () {
+        // @todo
+        mounted () {
             if (!this.content) this.content = this.$parent;
-            this.showSlotHeader = this.$els.title.innerHTML.replace(/\n/g, '').replace(/<!--[\w\W\r\n]*?-->/gmi, '') !== '';
-            this.showSlotFooter = this.$els.footer.innerHTML.replace(/\n/g, '').replace(/<!--[\w\W\r\n]*?-->/gmi, '') !== '';
+            this.showSlotHeader = this.$refs.title.innerHTML.replace(/\n/g, '').replace(/<!--[\w\W\r\n]*?-->/gmi, '') !== '';
+            this.showSlotFooter = this.$refs.footer.innerHTML.replace(/\n/g, '').replace(/<!--[\w\W\r\n]*?-->/gmi, '') !== '';
             this.rebuildData = this.makeDataWithSortAndFilter();
         },
-        ready () {
+        mounted () {
             this.handleResize();
             this.fixedHeader();
             this.$nextTick(() => this.ready = true);

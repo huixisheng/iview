@@ -2,7 +2,7 @@
     <div :class="classes" transition="fade">
         <div :class="mainClasses">
             <span :class="dotClasses"></span>
-            <div :class="textClasses" v-el:text><slot></slot></div>
+            <div :class="textClasses" ref="text"><slot></slot></div>
         </div>
     </div>
 </template>
@@ -49,8 +49,8 @@
                 return `${prefixCls}-text`;
             }
         },
-        compiled () {
-            const text = this.$els.text.innerHTML;
+        mounted () {
+            const text = this.$refs.text.innerHTML;
 
             if (text != '') {
                 this.showText = true;

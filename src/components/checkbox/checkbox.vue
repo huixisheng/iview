@@ -18,7 +18,7 @@
                 v-model="checked"
                 @change="change">
         </span>
-        <slot v-if="showSlot"><span v-el:slot>{{ value }}</span></slot>
+        <slot v-if="showSlot"><span ref="slot">{{ value }}</span></slot>
     </label>
 </template>
 <script>
@@ -33,10 +33,10 @@
             value: {
                 type: [String, Number, Boolean]
             },
-            checked: {
-                type: Boolean,
-                default: false
-            },
+            // checked: {
+            //     type: Boolean,
+            //     default: false
+            // },
             indeterminate: {
                 type: Boolean,
                 default: false
@@ -47,7 +47,8 @@
                 model: [],
                 selected: false,
                 group: false,
-                showSlot: true
+                showSlot: true,
+                checked: false
             };
         },
         computed: {
@@ -78,11 +79,11 @@
                 return `${prefixCls}-input`;
             }
         },
-        ready () {
+        mounted () {
             if (this.$parent && this.$parent.$options.name === 'checkboxGroup') this.group = true;
             if (!this.group) {
                 this.updateModel();
-                if (this.$els.slot && this.$els.slot.innerHTML === '') {
+                if (this.$refs.slot && this.$refs.slot.innerHTML === '') {
                     this.showSlot = false;
                 }
             }
@@ -99,7 +100,7 @@
                     this.$parent.change(this.model);
                 } else {
                     this.$emit('on-change', this.checked);
-                    this.$dispatch('on-form-change', this.checked);
+                    this.$emit('on-form-change', this.checked);
                 }
             },
             updateModel () {

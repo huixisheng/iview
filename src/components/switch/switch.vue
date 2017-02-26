@@ -13,10 +13,10 @@
 
     export default {
         props: {
-            checked: {
-                type: Boolean,
-                default: false
-            },
+            // checked: {
+            //     type: Boolean,
+            //     default: false
+            // },
             disabled: {
                 type: Boolean,
                 default: false
@@ -25,6 +25,11 @@
                 validator (value) {
                     return oneOf(value, ['large', 'small']);
                 }
+            }
+        },
+        data () {
+            return {
+                checked: false
             }
         },
         computed: {
@@ -50,7 +55,7 @@
 
                 this.checked = !this.checked;
                 this.$emit('on-change', this.checked);
-                this.$dispatch('on-form-change', this.checked);
+                this.$emit('on-form-change', this.checked);
             }
         }
     };

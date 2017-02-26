@@ -1,11 +1,11 @@
 <template>
     <div :class="wrapClasses">
         <template v-if="type !== 'textarea'">
-            <div :class="[prefixCls + '-group-prepend']" v-if="prepend" v-show="slotReady" v-el:prepend><slot name="prepend"></slot></div>
+            <div :class="[prefixCls + '-group-prepend']" v-if="prepend" v-show="slotReady" ref="prepend"><slot name="prepend"></slot></div>
             <i class="ivu-icon" :class="['ivu-icon-' + icon, prefixCls + '-icon']" v-if="icon" @click="handleIconClick"></i>
             <i class="ivu-icon ivu-icon-load-c ivu-load-loop" :class="[prefixCls + '-icon', prefixCls + '-icon-validate']" v-else transition="fade"></i>
             <input
-                :type="type"
+                type="text"
                 :class="inputClasses"
                 :placeholder="placeholder"
                 :disabled="disabled"
@@ -17,12 +17,26 @@
                 @keyup.enter="handleEnter"
                 @focus="handleFocus"
                 @blur="handleBlur"
-                @change="handleChange">
-            <div :class="[prefixCls + '-group-append']" v-if="append" v-show="slotReady" v-el:append><slot name="append"></slot></div>
+                @change="handleChange" v-if="type === 'text'">
+            <input
+                type="password"
+                :class="inputClasses"
+                :placeholder="placeholder"
+                :disabled="disabled"
+                :maxlength="maxlength"
+                :readonly="readonly"
+                :name="name"
+                v-model="value"
+                :number="number"
+                @keyup.enter="handleEnter"
+                @focus="handleFocus"
+                @blur="handleBlur"
+                @change="handleChange" v-if="type === 'password'">
+            <div :class="[prefixCls + '-group-append']" v-if="append" v-show="slotReady" ref="append"><slot name="append"></slot></div>
         </template>
         <textarea
             v-else
-            v-el:textarea
+            ref="textarea"
             :class="textareaClasses"
             :style="textareaStyles"
             :placeholder="placeholder"
@@ -56,7 +70,7 @@
             value: {
                 type: [String, Number],
                 default: '',
-//                twoWay: true
+               // twoWay: true
             },
             size: {
                 validator (value) {
@@ -146,7 +160,9 @@
             },
             handleBlur () {
                 this.$emit('on-blur');
-                this.$dispatch('on-form-blur', this.value);
+                // @todo
+                this.$on('on-form-blur', this.value);
+                // this.$dispatch('on-form-blur', this.value);
             },
             handleChange (event) {
                 this.$emit('on-change', event);
@@ -160,12 +176,12 @@
                 const minRows = autosize.minRows;
                 const maxRows = autosize.maxRows;
 
-                this.textareaStyles = calcTextareaHeight(this.$els.textarea, minRows, maxRows);
+                this.textareaStyles = calcTextareaHeight(this.$refs.textarea, minRows, maxRows);
             },
             init () {
                 if (this.type !== 'textarea') {
-                    this.prepend = this.$els.prepend.innerHTML !== '';
-                    this.append = this.$els.append.innerHTML !== '';
+                    this.prepend = this.$refs.prepend.innerHTML !== '';
+                    this.append = this.$refs.append.innerHTML !== '';
                 } else {
                     this.prepend = false;
                     this.append = false;
@@ -179,10 +195,11 @@
                 this.$nextTick(() => {
                     this.resizeTextarea();
                 });
-                this.$dispatch('on-form-change', this.value);
+                // this.$dispatch('on-form-change', this.value);
+                this.$emit('on-form-change', this.value);
             }
         },
-        compiled () {
+        mounted () {
             this.$nextTick(() => this.init());
         }
     };

@@ -1,4 +1,5 @@
 <template>
+<div>
     <Input-number :max="10" :min="1" :value="1"></Input-number>
     <br><br>
     <i-input type="textarea" :autosize="true" placeholder="请输入..."></i-input>
@@ -80,6 +81,7 @@
         <Input-number :value="2" size="large"></Input-number>
         <i-input type="password"></i-input>
     </div>
+</div>
 </template>
 <script>
     import { iInput, Icon, iButton, iSelect, iOption, InputNumber } from 'iview';

@@ -29,9 +29,14 @@ export default {
                 };
             }
         },
-        visible: {
-            type: Boolean,
-            default: false
+        // visible: {
+        //     type: Boolean,
+        //     default: false
+        // }
+    },
+    data () {
+        return {
+            visible: false
         }
     },
     watch: {
@@ -59,8 +64,8 @@ export default {
             }
 
             const options = this.options;
-            const popper = this.popper || this.$els.popper;
-            const reference = this.reference || this.$els.reference;
+            const popper = this.popper || this.$refs.popper;
+            const reference = this.reference || this.$refs.reference;
 
             if (!popper || !reference) return;
 

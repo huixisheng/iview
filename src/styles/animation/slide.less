@@ -2,9 +2,13 @@
     .make-motion(@className, @keyframeName);
     .@{className}-enter, .@{className}-appear {
         opacity: 0;
+        // animation-timing-function: @ease-in-out;
+    }
+    .@{className}-enter-active, .@{className}-appear {
+        // opacity: 0;
         animation-timing-function: @ease-in-out;
     }
-    .@{className}-leave {
+    .@{className}-leave-active {
         animation-timing-function: @ease-in-out;
     }
 }

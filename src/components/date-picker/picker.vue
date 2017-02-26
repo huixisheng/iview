@@ -1,8 +1,9 @@
 <template>
+<div>
     <div
         :class="[prefixCls]"
         v-clickoutside="handleClose">
-        <div v-el:reference :class="[prefixCls + '-rel']">
+        <div ref="reference" :class="[prefixCls + '-rel']">
             <slot>
                 <i-input
                     :class="[prefixCls + '-editor']"
@@ -19,10 +20,13 @@
                     :icon="iconType"></i-input>
             </slot>
         </div>
-        <Drop v-show="opened" :placement="placement" :transition="transition" v-ref:drop>
-            <div v-el:picker></div>
-        </Drop>
+        <transition :name="transition">
+            <Drop v-show="opened" :placement="placement" ref="drop">
+                <div ref="picker"></div>
+            </Drop>
+        </transition>
     </div>
+</div>
 </template>
 <script>
     import Vue from 'vue';
@@ -360,13 +364,14 @@
                 this.internalValue = '';
                 this.value = '';
                 this.$emit('on-clear');
-                this.$dispatch('on-form-change', '');
+                //this.$dispatch('on-form-change', '');
+                this.$emit('on-form-change', '');
             },
             showPicker () {
                 if (!this.picker) {
                     const type = this.type;
 
-                    this.picker = new Vue(this.panel).$mount(this.$els.picker);
+                    this.picker = new Vue(this.panel).$mount(this.$refs.picker);
                     if (type === 'datetime' || type === 'datetimerange') {
                         this.confirm = true;
                         this.picker.showTime = true;
@@ -425,7 +430,8 @@
                 }
 
                 this.$emit('on-change', newDate);
-                this.$dispatch('on-form-change', newDate);
+                // this.$dispatch('on-form-change', newDate);
+                this.$emit('on-form-change', newDate);
             }
         },
         watch: {
@@ -445,6 +451,7 @@
                     this.picker.handleClear();
                 }
             },
+            // @todo
             value: {
                 immediate: true,
                 handler (val) {
@@ -478,7 +485,7 @@
                 this.picker.$destroy();
             }
         },
-        ready () {
+        mounted () {
             if (this.open !== null) this.visible = this.open;
         },
         events: {

@@ -5,24 +5,26 @@
                 <i-input
                     readonly
                     :disabled="disabled"
-                    :value.sync="displayRender"
+                    :value="displayRender"
                     :size="size"
                     :placeholder="placeholder"></i-input>
                 <Icon type="ios-close" :class="[prefixCls + '-arrow']" v-show="showCloseIcon" @click.stop="clearSelect"></Icon>
                 <Icon type="arrow-down-b" :class="[prefixCls + '-arrow']"></Icon>
             </slot>
         </div>
-        <Dropdown v-show="visible" transition="slide-up">
-            <div>
-                <Caspanel
-                    v-ref:caspanel
-                    :prefix-cls="prefixCls"
-                    :data.sync="data"
-                    :disabled="disabled"
-                    :change-on-select="changeOnSelect"
-                    :trigger="trigger"></Caspanel>
-            </div>
-        </Dropdown>
+        <transition name="slide-up">
+            <Dropdown v-show="visible">
+                <div>
+                    <Caspanel
+                        ref="caspanel"
+                        :prefix-cls="prefixCls"
+                        :data="data"
+                        :disabled="disabled"
+                        :change-on-select="changeOnSelect"
+                        :trigger="trigger"></Caspanel>
+                </div>
+            </Dropdown>
+        </transition>
     </div>
 </template>
 <script>
@@ -123,7 +125,8 @@
                 this.value = this.selected = this.tmpSelected = [];
                 this.handleClose();
                 this.emitValue(this.value, oldVal);
-                this.$broadcast('on-clear');
+                // @todo broadcast
+                this.$emit('on-clear');
             },
             handleClose () {
                 this.visible = false;
@@ -138,7 +141,8 @@
             onFocus () {
                 this.visible = true;
                 if (!this.value.length) {
-                    this.$broadcast('on-clear');
+                    // @todo broadcast
+                    this.$emit('on-clear');
                 }
             },
             updateResult (result) {
@@ -146,23 +150,18 @@
             },
             updateSelected (init = false) {
                 if (!this.changeOnSelect || init) {
+                    // @todo broadcast
                     this.$broadcast('on-find-selected', this.value);
                 }
             },
             emitValue (val, oldVal) {
                 if (JSON.stringify(val) !== oldVal) {
                     this.$emit('on-change', this.value, JSON.parse(JSON.stringify(this.selected)));
-                    this.$dispatch('on-form-change', this.value, JSON.parse(JSON.stringify(this.selected)));
+                    // @todo  $dispatch>$emit?
+                    this.$emit('on-form-change', this.value, JSON.parse(JSON.stringify(this.selected)));
                 }
-            }
-        },
-        ready () {
-            this.updateSelected(true);
-        },
-        events: {
-            // lastValue: is click the final val
-            // fromInit: is this emit from update value
-            'on-result-change' (lastValue, changeOnSelect, fromInit) {
+            },
+            onResultChange (lastValue, changeOnSelect, fromInit) {
                 if (lastValue || changeOnSelect) {
                     const oldVal = JSON.stringify(this.value);
                     this.selected = this.tmpSelected;
@@ -181,7 +180,38 @@
                 if (lastValue && !fromInit) {
                     this.handleClose();
                 }
-            },
+            }
+        },
+        mounted () {
+            this.updateSelected(true);
+            // this.$on('on-result-change', function (argument) {
+            //     debugger;
+            // });
+            this.$on('on-result-change', this.onResultChange);
+        },
+        events: {
+            // lastValue: is click the final val
+            // fromInit: is this emit from update value
+            // 'on-result-change' (lastValue, changeOnSelect, fromInit) {
+            //     if (lastValue || changeOnSelect) {
+            //         const oldVal = JSON.stringify(this.value);
+            //         this.selected = this.tmpSelected;
+
+            //         let newVal = [];
+            //         this.selected.forEach((item) => {
+            //             newVal.push(item.value);
+            //         });
+
+            //         if (!fromInit) {
+            //             this.updatingValue = true;
+            //             this.value = newVal;
+            //             this.emitValue(this.value, oldVal);
+            //         }
+            //     }
+            //     if (lastValue && !fromInit) {
+            //         this.handleClose();
+            //     }
+            // },
             'on-form-blur' () {
                 return false;
             },

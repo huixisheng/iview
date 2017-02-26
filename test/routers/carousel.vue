@@ -1,4 +1,5 @@
 <template>
+<div>
     <Row>
         <i-col span="2">
             Current Index
@@ -177,6 +178,7 @@
             </Carousel>
         </Tab-pane>
     </Tabs>
+</div>
 </template>
 <script>
     export default {

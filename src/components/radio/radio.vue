@@ -16,10 +16,10 @@
 
     export default {
         props: {
-            checked: {
-                type: Boolean,
-                default: false
-            },
+            // checked: {
+            //     type: Boolean,
+            //     default: false
+            // },
             disabled: {
                 type: Boolean,
                 default: false
@@ -31,7 +31,8 @@
         data () {
             return {
                 selected: false,
-                group: false
+                group: false,
+                checked: false
             };
         },
         computed: {
@@ -61,7 +62,7 @@
                 return `${prefixCls}-input`;
             }
         },
-        ready () {
+        mounted () {
             if (this.$parent && this.$parent.$options.name === 'radioGroup') this.group = true;
             if (!this.group) {
                 this.updateModel();
@@ -83,7 +84,7 @@
                     });
                 }
 
-                if (!this.group) this.$dispatch('on-form-change', this.selected);
+                if (!this.group) this.$emit('on-form-change', this.selected);
             },
             updateModel () {
                 this.selected = this.checked;

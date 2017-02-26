@@ -1,13 +1,15 @@
 <template>
+<!-- <div> -->
     <ul v-if="data && data.length" :class="[prefixCls + '-menu']">
         <Casitem
             v-for="item in data"
             :prefix-cls="prefixCls"
-            :data.sync="item"
+            :data="item"
             :tmp-item="tmpItem"
-            @click.stop="handleClickItem(item)"
-            @mouseenter.stop="handleHoverItem(item)"></Casitem>
-    </ul><Caspanel v-if="sublist && sublist.length" :prefix-cls="prefixCls" :data.sync="sublist" :disabled="disabled" :trigger="trigger" :change-on-select="changeOnSelect"></Caspanel>
+            @click.native.stop="handleClickItem(item)"
+            @mouseenter.native.stop="handleHoverItem(item)"></Casitem>
+    </ul><Caspanel v-else-if="sublist && sublist.length" :prefix-cls="prefixCls" :data="sublist" :disabled="disabled" :trigger="trigger" :change-on-select="changeOnSelect"></Caspanel>
+<!-- </div> -->
 </template>
 <script>
     import Casitem from './casitem.vue';
@@ -22,12 +24,12 @@
                     return [];
                 }
             },
-            sublist: {
-                type: Array,
-                default () {
-                    return [];
-                }
-            },
+            // sublist: {
+            //     type: Array,
+            //     default () {
+            //         return [];
+            //     }
+            // },
             disabled: Boolean,
             changeOnSelect: Boolean,
             trigger: String,
@@ -36,7 +38,8 @@
         data () {
             return {
                 tmpItem: {},
-                result: []
+                result: [],
+                sublist: []
             };
         },
         methods: {
@@ -55,13 +58,14 @@
                 const backItem = this.getBaseItem(item);
                 this.tmpItem = backItem;
                 this.emitUpdate([backItem]);
-
                 if (item.children && item.children.length){
                     this.sublist = item.children;
-                    this.$dispatch('on-result-change', false, this.changeOnSelect, fromInit);
+                    this.$parent.$parent.$emit('on-result-change', false, this.changeOnSelect, fromInit);
+                    // this.$dispatch('on-result-change', false, this.changeOnSelect, fromInit);
                 } else {
                     this.sublist = [];
-                    this.$dispatch('on-result-change', true, this.changeOnSelect, fromInit);
+                    this.$parent.$parent.$emit('on-result-change', false, this.changeOnSelect, fromInit);
+                    // this.$dispatch('on-result-change', true, this.changeOnSelect, fromInit);
                 }
             },
             updateResult (item) {
@@ -89,8 +93,8 @@
                 this.sublist = [];
             }
         },
-        events: {
-            'on-find-selected' (val) {
+        mounted () {
+            this.$on('on-find-selected', function (val) {
                 let value = [...val];
                 for (let i = 0; i < value.length; i++) {
                     for (let j = 0; j < this.data.length; j++) {
@@ -104,11 +108,32 @@
                         }
                     }
                 }
-            },
-            'on-clear' () {
+            });
+            this.$on('on-clear', function () {
                 this.sublist = [];
                 this.tmpItem = {};
-            }
+            })
+        },
+        events: {
+            // 'on-find-selected' (val) {
+            //     let value = [...val];
+            //     for (let i = 0; i < value.length; i++) {
+            //         for (let j = 0; j < this.data.length; j++) {
+            //             if (value[i] === this.data[j].value) {
+            //                 this.handleTriggerItem(this.data[j], true);
+            //                 value.splice(0, 1);
+            //                 this.$nextTick(() => {
+            //                     this.$broadcast('on-find-selected', value);
+            //                 });
+            //                 return false;
+            //             }
+            //         }
+            //     }
+            // },
+            // 'on-clear' () {
+            //     this.sublist = [];
+            //     this.tmpItem = {};
+            // }
         }
     };
 </script>

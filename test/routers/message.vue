@@ -1,10 +1,18 @@
 <template>
-    <i-button @click="confirm">标准</i-button>
-    <i-button @click="custom">自定义按钮文字</i-button>
-    <i-button @click="async">异步关闭</i-button>
+    <div>
+        <i-button @click.native="confirm">标准</i-button>
+        <i-button @click.native="custom">自定义按钮文字</i-button>
+        <i-button @click.native="async">异步关闭</i-button>
+    </div>
 </template>
 <script>
     export default {
+        data () {
+            return {
+            }
+        },
+        mounted () {
+        },
         methods: {
             confirm () {
                 this.$Modal.confirm({

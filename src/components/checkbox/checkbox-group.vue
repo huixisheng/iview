@@ -16,17 +16,23 @@
                 }
             }
         },
+        data () {
+            return {
+                propModel: []
+            }
+        },
         computed: {
             classes () {
                 return `${prefixCls}`;
             }
         },
-        compiled () {
+        mounted () {
+            this.propModel = this.model;
             this.updateModel(true);
         },
         methods: {
             updateModel (update) {
-                const model = this.model;
+                const model = this.propModel;
 
                 this.$children.forEach((child) => {
                     child.model = model;
@@ -38,13 +44,16 @@
                 });
             },
             change (data) {
-                this.model = data;
+                this.propModel = data;
                 this.$emit('on-change', data);
-                this.$dispatch('on-form-change', data);
+                this.$emit('on-form-change', data);
             }
         },
         watch: {
-            model () {
+           model (val) {
+                this.propModel = val;
+            },
+            propModel () {
                 this.updateModel(true);
             }
         }

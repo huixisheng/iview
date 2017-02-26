@@ -2,7 +2,7 @@
     <li :class="[prefixCls + '-wrap']" v-show="!hidden">
         <div :class="[prefixCls + '-title']">{{ label }}</div>
         <ul>
-            <li :class="[prefixCls]" v-el:options><slot></slot></li>
+            <li :class="[prefixCls]" ref="options"><slot></slot></li>
         </ul>
     </li>
 </template>
@@ -25,7 +25,7 @@
         methods: {
             queryChange () {
                 this.$nextTick(() => {
-                    const options = this.$els.options.querySelectorAll('.ivu-select-item');
+                    const options = this.$refs.options.querySelectorAll('.ivu-select-item');
                     let hasVisibleOption = false;
                     for (let i = 0; i < options.length; i++) {
                         if (options[i].style.display !== 'none') {

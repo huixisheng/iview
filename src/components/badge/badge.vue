@@ -1,9 +1,9 @@
 <template>
-    <span v-if="dot" :class="classes" v-el:badge>
+    <span v-if="dot" :class="classes" ref="badge">
         <slot></slot>
         <sup :class="dotClasses" v-show="badge"></sup>
     </span>
-    <span v-else :class="classes" v-el:badge>
+    <span v-else :class="classes" ref="badge">
         <slot></slot>
         <sup v-if="count" :class="countClasses" v-show="badge">{{ finalCount }}</sup>
     </span>
@@ -67,8 +67,8 @@
                 alone: false
             };
         },
-        compiled () {
-            const child_length = this.$els.badge.children.length;
+        mounted () {
+            const child_length = this.$refs.badge.children.length;
             if (child_length === 1) {
                 this.alone = true;
             }

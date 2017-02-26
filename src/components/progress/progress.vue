@@ -94,7 +94,7 @@
                 return `${prefixCls}-bg`;
             }
         },
-        compiled () {
+        mounted () {
             this.handleStatus();
         },
         methods: {

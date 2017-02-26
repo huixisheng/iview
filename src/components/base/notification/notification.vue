@@ -6,7 +6,7 @@
             :content="notice.content"
             :duration="notice.duration"
             :closable="notice.closable"
-            :key="notice.key"
+            :key-prop="notice.key"
             :transition-name="notice.transitionName"
             :on-close="notice.onClose">
         </Notice>

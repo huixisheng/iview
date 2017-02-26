@@ -7,7 +7,7 @@
             @dragover.prevent="dragOver = true"
             @dragleave.prevent="dragOver = false">
             <input
-                v-el:input
+                ref="input"
                 :class="[prefixCls + '-input']"
                 type="file"
                 @change="handleChange"
@@ -154,7 +154,7 @@
         },
         methods: {
             handleClick () {
-                this.$els.input.click();
+                this.$refs.input.click();
             },
             handleChange (e) {
                 const files = e.target.files;
@@ -163,7 +163,7 @@
                     return;
                 }
                 this.uploadFiles(files);
-                this.$els.input.value = null;
+                this.$refs.input.value = null;
             },
             onDrop (e) {
                 this.dragOver = false;

@@ -1,4 +1,5 @@
 <template>
+<div>
     <Menu mode="horizontal" :theme="theme1" :active-key.sync="ak">
         <Menu-item key="1">
             <Icon type="ios-paper"></Icon>
@@ -36,6 +37,7 @@
         <Radio value="primary"></Radio>
     </Radio-group>
     <i-button @click="ak = '2'">change</i-button>
+</div>
 </template>
 <script>
     export default {

@@ -1,6 +1,7 @@
 <template>
+<div>
     <div>
-        <Radio-group :model.sync="phone" vertical>
+        <Radio-group :model="phone" vertical>
             <Radio value="apple">
                 <Icon type="social-apple"></Icon>
                 <span>Apple</span>
@@ -14,19 +15,20 @@
                 <span>Windows</span>
             </Radio>
         </Radio-group>
-        <Radio-group :model.sync="animal">
+        <br><br>
+        <Radio-group :model="animal">
             <Radio value="金斑蝶"></Radio>
             <Radio value="爪哇犀牛"></Radio>
             <Radio value="印度黑羚"></Radio>
         </Radio-group>
         <br><br>
-        <i-button @click="activeKey = '2'">换</i-button>
+        <!-- <i-button @click.native="activeKey = '2'">换</i-button> -->
     </div>
-    <Radio :checked.sync="radio">Radio</Radio>
-    <i-button @click="radio = !radio">change radio</i-button>
+    <Radio ref="radio1" :checked="radio">Radio</Radio>
+    <i-button @click.native="changeRadio">change radio</i-button>
     <br>
     <br>
-    <Radio-group :model.sync="phone" type="button" vertical>
+    <Radio-group :model="phone" type="button" vertical>
         <Radio value="apple">
             <Icon type="social-apple"></Icon>
             <span>Apple</span>
@@ -40,35 +42,35 @@
             <span>Windows</span>
         </Radio>
     </Radio-group>
-    <Radio-group :model.sync="animal" type="button">
+    <Radio-group :model="animal" type="button">
         <Radio value="金斑蝶"></Radio>
         <Radio value="爪哇犀牛"></Radio>
         <Radio value="印度黑羚"></Radio>
     </Radio-group>
 
-    <Radio-group :model.sync="animal" type="button">
+    <Radio-group :model="animal" type="button">
         <Radio value="金斑蝶" disabled></Radio>
         <Radio value="爪哇犀牛" disabled></Radio>
         <Radio value="印度黑羚"></Radio>
     </Radio-group>
     <br><br>
-    <Radio-group :model.sync="animal" type="button" size="large">
+    <Radio-group :model="animal" type="button" size="large">
         <Radio value="金斑蝶"></Radio>
         <Radio value="爪哇犀牛"></Radio>
         <Radio value="印度黑羚"></Radio>
     </Radio-group>
-    <Radio-group :model.sync="animal" type="button">
+    <Radio-group :model="animal" type="button">
         <Radio value="金斑蝶"></Radio>
         <Radio value="爪哇犀牛"></Radio>
         <Radio value="印度黑羚"></Radio>
     </Radio-group>
-    <Radio-group :model.sync="animal" type="button" size="small">
+    <Radio-group :model="animal" type="button" size="small">
         <Radio value="金斑蝶"></Radio>
         <Radio value="爪哇犀牛"></Radio>
         <Radio value="印度黑羚"></Radio>
     </Radio-group>
     <br><br><br><br>
-    <Checkbox :checked.sync="radio">Checkbox</Checkbox>
+    <Checkbox :checked="radio">Checkbox</Checkbox>
     <br><br>
     <Checkbox-group :model="social">
         <Checkbox value="twitter">
@@ -89,26 +91,26 @@
         </Checkbox>
     </Checkbox-group>
     <br><br>
-    <Checkbox :checked.sync="disabledSingle" disabled>Checkbox</Checkbox>
+    <Checkbox :checked="disabledSingle" disabled>Checkbox</Checkbox>
     <Checkbox-group :model="disabledGroup">
         <Checkbox value="香蕉" disabled></Checkbox>
         <Checkbox value="苹果" disabled></Checkbox>
         <Checkbox value="西瓜"></Checkbox>
     </Checkbox-group>
     <br><br>
-    <Switch @on-change="change"></Switch>
+    <i-switch @on-change="change"></i-switch>
     <br><br>
-    <Switch>
+    <i-switch>
         <span slot="open">开</span>
         <span slot="close">关</span>
-    </Switch>
+    </i-switch>
     <br><br>
-    <Switch>
+    <i-switch>
         <Icon type="android-done" slot="open"></Icon>
         <Icon type="android-close" slot="close"></Icon>
-    </Switch>
-    <Switch disabled></Switch>
-    <Switch size="small"></Switch>
+    </i-switch>
+    <i-switch disabled></i-switch>
+    <i-switch size="small"></i-switch>
     <br><br>
     <Input-number :max="10" :min="1" :step="1.2" :value="1"></Input-number>
     <Input-number :value="2" size="small"></Input-number>
@@ -142,10 +144,11 @@
         <Breadcrumb-item>Breadcrumb</Breadcrumb-item>
     </Breadcrumb>
     <br><br>
-    <Checkbox :checked.sync="single"></Checkbox>
+    <Checkbox :checked="single"></Checkbox>
+</div>
 </template>
 <script>
-    import { Radio, Alert, Icon, Collapse, iButton, Checkbox, Switch, InputNumber, Breadcrumb, LoadingBar } from 'iview';
+    import { Radio, Alert, Icon, Collapse, iButton, Checkbox, iSwitch, InputNumber, Breadcrumb, LoadingBar } from 'iview';
 
     const RadioGroup = Radio.Group;
     const Panel = Collapse.Panel;
@@ -163,7 +166,7 @@
             iButton,
             Checkbox,
             CheckboxGroup,
-            Switch,
+            iSwitch,
             InputNumber,
             Breadcrumb,
             BreadcrumbItem,
@@ -189,6 +192,10 @@
 
         },
         methods: {
+            changeRadio () {
+                this.$refs.radio1.checked = !this.radio;
+                this.radio = !this.radio;
+            },
             changeGroup (data) {
                 console.log(data);
             },

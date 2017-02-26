@@ -1,4 +1,5 @@
 <template>
+<div>
     <div class="demo-upload-list" v-for="item in uploadList">
         <template v-if="item.status === 'finished'">
             <img :src="item.url">
@@ -8,7 +9,7 @@
             </div>
         </template>
         <template v-else>
-            <Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
+            <i-progress v-if="item.showProgress" :percent="item.percentage" hide-info></i-progress>
         </template>
     </div>
     <Upload
@@ -32,6 +33,7 @@
     <Modal title="查看图片" :visible.sync="visible">
         <img :src="'https://o5wwk8baw.qnssl.com/' + imgName + '/large'" v-if="visible" style="width: 100%">
     </Modal>
+</div>
 </template>
 <script>
     export default {

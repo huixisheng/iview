@@ -17,18 +17,18 @@ Modal.newInstance = properties => {
 
     const div = document.createElement('div');
     div.innerHTML = `
-        <Modal${props} :visible.sync="visible" :width="width" :scrollable.sync="scrollable">
+        <Modal${props} :width="width" :scrollable="scrollable">
             <div class="${prefixCls}">
                 <div class="${prefixCls}-head">
-                    <div class="${prefixCls}-head-title">{{{ title }}}</div>
+                    <div class="${prefixCls}-head-title" v-html="title"></div>
                 </div>
                 <div class="${prefixCls}-body">
                     <div :class="iconTypeCls"><i :class="iconNameCls"></i></div>
-                    {{{ body }}}
+                    <span v-html="body"></span>
                 </div>
                 <div class="${prefixCls}-footer">
-                    <i-button type="text" size="large" v-if="showCancel" @click="cancel">{{ cancelText }}</i-button>
-                    <i-button type="primary" size="large" :loading="buttonLoading" @click="ok">{{ okText }}</i-button>
+                    <i-button type="text" size="large" v-if="showCancel" @click.native="cancel">{{ cancelText }}</i-button>
+                    <i-button type="primary" size="large" :loading="buttonLoading" @click.native="ok">{{ okText }}</i-button>
                 </div>
             </div>
         </Modal>
@@ -39,7 +39,7 @@ Modal.newInstance = properties => {
         el: div,
         components: { Modal, iButton, Icon },
         data: Object.assign(_props, {
-            visible: false,
+            // visible: true,
             width: 416,
             title: '',
             body: '',
@@ -68,7 +68,9 @@ Modal.newInstance = properties => {
         },
         methods: {
             cancel () {
-                this.visible = false;
+                // 解决 visible.sync
+                this.$children[0].visible = false;
+                // this.visible = false;
                 this.buttonLoading = false;
                 this.onCancel();
                 this.remove();
@@ -89,7 +91,11 @@ Modal.newInstance = properties => {
             },
             destroy () {
                 this.$destroy();
-                document.body.removeChild(div);
+                // @todo
+                // Uncaught DOMException: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+                // https://github.com/ElemeFE/element/issues/429
+                // document.body.removeChild(div);
+                this.$el.remove();
                 this.onRemove();
             },
             onOk () {},

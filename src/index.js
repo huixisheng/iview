@@ -61,7 +61,7 @@ const iview = {
     Cascader,
     Checkbox,
     CheckboxGroup: Checkbox.Group,
-    Circle,
+    iCircle: Circle,
     DatePicker,
     Dropdown,
     DropdownItem: Dropdown.Item,
@@ -73,7 +73,7 @@ const iview = {
     Icon,
     iInput: Input,
     InputNumber,
-    LoadingBar,
+    // LoadingBar,
     Menu,
     MenuGroup: Menu.Group,
     MenuItem: Menu.Item,
@@ -86,7 +86,7 @@ const iview = {
     Page,
     Panel: Collapse.Panel,
     Poptip,
-    Progress,
+    iProgress: Progress,
     Radio,
     RadioGroup: Radio.Group,
     Rate,
@@ -96,7 +96,7 @@ const iview = {
     Spin,
     Step: Steps.Step,
     Steps,
-    Switch,
+    iSwitch: Switch,
     iTable: Table,
     Tabs: Tabs,
     TabPane: Tabs.Pane,
@@ -110,9 +110,42 @@ const iview = {
     Upload
 };
 
+/**
+* Recursively broadcast an event to all children instances.
+*
+* @param {String|Object} event
+* @param {...*} additional arguments
+*/
+
+function broadcast (event) {
+ var isSource = typeof event === 'string';
+ event = isSource ? event : event.name;
+ // if no child has registered for this event,
+ // then there's no need to broadcast.
+ // if (!this._eventsCount[event]) return;
+ var children = this.$children;
+ var args = Array.prototype.slice.call(arguments);
+ if (isSource) {
+   // use object event to indicate non-source emit
+   // on children
+   args[0] = { name: event, source: this };
+ }
+ //遍历所有一级子组件
+ for (var i = 0, l = children.length; i < l; i++) {
+   var child = children[i];
+   //在每个组件上均触发指定的事件
+   var shouldPropagate = child.$emit.apply(child, args);
+   //若事件响应函数返回true才会向孙子组件继续广播
+   if (shouldPropagate) {
+     child.$broadcast.apply(child, args);
+   }
+ }
+ return this;
+};
+
 const install = function (Vue, opts = {}) {
     locale.use(opts.locale);
-    locale.i18n(opts.i18n);
+    // locale.i18n(opts.i18n);
 
     Object.keys(iview).forEach((key) => {
         Vue.component(key, iview[key]);
@@ -122,6 +155,7 @@ const install = function (Vue, opts = {}) {
     Vue.prototype.$Message = Message;
     Vue.prototype.$Modal = Modal;
     Vue.prototype.$Notice = Notice;
+    Vue.prototype.$broadcast = broadcast;
 };
 
 // auto install

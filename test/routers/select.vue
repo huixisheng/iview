@@ -1,25 +1,27 @@
 <template>
+<div>
     <Row>
         <i-col span="12" style="padding-right:10px">
-            <i-select :model.sync="model111" filterable>
+            <i-select :model="model111" filterable>
                 <i-option v-for="item in cityList1" :value="item.value">{{ item.label }}</i-option>
             </i-select>
         </i-col>
     </Row>
     <Row>
         <i-col span="12" style="padding-right:10px">
-            <i-select :model.sync="model112" filterable>
+            <i-select :model="model112" filterable>
                 <i-option v-for="item in cityList2" :value="item.value">{{ item.label }}</i-option>
             </i-select>
         </i-col>
     </Row>
     <Row>
         <i-col span="12">
-            <i-select :model.sync="model12" filterable multiple>
+            <i-select :model="model12" filterable multiple>
                 <i-option v-for="item in cityList1" :value="item.value">{{ item.label }}</i-option>
             </i-select>
         </i-col>
     </Row>
+</div>
 </template>
 <script>
 const cityList = [
@@ -60,7 +62,7 @@ const cityList = [
                 model12: []
             }
         },
-        ready() {
+        mounted() {
           this.model111 = 'hangzhou'
           setTimeout(()=>{
             this.cityList2 = cityList

@@ -24,7 +24,7 @@
                 };
             }
         },
-        compiled () {
+        mounted () {
             this.$parent.slotChange();
         },
         beforeDestroy () {

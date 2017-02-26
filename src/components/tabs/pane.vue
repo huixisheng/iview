@@ -48,7 +48,7 @@
                 this.updateNav();
             }
         },
-        ready () {
+        mounted () {
             this.updateNav();
         }
     };

@@ -2,11 +2,11 @@
     <div :class="classes" v-clickoutside="handleClose">
         <div
             :class="[prefixCls + '-selection']"
-            v-el:reference
+            ref="reference"
             @click="toggleMenu">
-            <div class="ivu-tag" v-for="item in selectedMultiple">
+            <div class="ivu-tag" v-for="(item, index) in selectedMultiple">
                 <span class="ivu-tag-text">{{ item.label }}</span>
-                <Icon type="ios-close-empty" @click.stop="removeTag($index)"></Icon>
+                <Icon type="ios-close-empty" @click.stop="removeTag(index)"></Icon>
             </div>
             <span :class="[prefixCls + '-placeholder']" v-show="showPlaceholder && !filterable">{{ placeholder }}</span>
             <span :class="[prefixCls + '-selected-value']" v-show="!showPlaceholder && !multiple && !filterable">{{ selectedSingle }}</span>
@@ -20,14 +20,16 @@
                 @blur="handleBlur"
                 @keydown="resetInputState"
                 @keydown.delete="handleInputDelete"
-                v-el:input>
+                ref="input">
             <Icon type="ios-close" :class="[prefixCls + '-arrow']" v-show="showCloseIcon" @click.stop="clearSingleSelect"></Icon>
             <Icon type="arrow-down-b" :class="[prefixCls + '-arrow']"></Icon>
         </div>
-        <Dropdown v-show="visible" transition="slide-up" v-ref:dropdown>
-            <ul v-show="notFound" :class="[prefixCls + '-not-found']"><li>{{ notFoundText }}</li></ul>
-            <ul v-else :class="[prefixCls + '-dropdown-list']" v-el:options><slot></slot></ul>
-        </Dropdown>
+        <transition name="slide-up">
+            <Dropdown v-show="visible" ref="dropdown">
+                <ul v-if="notFound"  :class="[prefixCls + '-not-found']"><li>{{ notFoundText }}</li></ul>
+                <ul v-else v-show="!notFound" :class="[prefixCls + '-dropdown-list']" ref="options"><slot></slot></ul>
+            </Dropdown>
+        </transition>
     </div>
 </template>
 <script>
@@ -36,7 +38,6 @@
     import clickoutside from '../../directives/clickoutside';
     import { oneOf, MutationObserver } from '../../utils/assist';
     import { t } from '../../locale';
-
     const prefixCls = 'ivu-select';
 
     export default {
@@ -91,6 +92,7 @@
         },
         data () {
             return {
+                propModel: '',
                 prefixCls: prefixCls,
                 visible: false,
                 options: [],
@@ -121,12 +123,12 @@
             showPlaceholder () {
                 let status = false;
 
-                if ((typeof this.model) === 'string') {
-                    if (this.model === '') {
+                if ((typeof this.propModel) === 'string') {
+                    if (this.propModel === '') {
                         status = true;
                     }
-                } else if (Array.isArray(this.model)) {
-                    if (!this.model.length) {
+                } else if (Array.isArray(this.propModel)) {
+                    if (!this.propModel.length) {
                         status = true;
                     }
                 }
@@ -161,7 +163,8 @@
             hideMenu () {
                 this.visible = false;
                 this.focusIndex = 0;
-                this.$broadcast('on-select-close');
+                // @todo
+                this.$emit('on-select-close');
             },
             // find option component
             findChild (cb) {
@@ -211,13 +214,13 @@
                 }
             },
             updateSingleSelected (init = false, slot = false) {
-                const type = typeof this.model;
+                const type = typeof this.propModel;
 
                 if (type === 'string' || type === 'number') {
                     let findModel = false;
 
                     for (let i = 0; i < this.options.length; i++) {
-                        if (this.model === this.options[i].value) {
+                        if (this.propModel === this.options[i].value) {
                             this.selectedSingle = this.options[i].label;
                             findModel = true;
                             break;
@@ -225,19 +228,19 @@
                     }
 
                     if (slot && !findModel) {
-                        this.model = '';
+                        this.propModel = '';
                         this.query = '';
                     }
                 }
 
-                this.toggleSingleSelected(this.model, init);
+                this.toggleSingleSelected(this.propModel, init);
             },
             clearSingleSelect () {
                 if (this.showCloseIcon) {
                     this.findChild((child) => {
                         child.selected = false;
                     });
-                    this.model = '';
+                    this.propModel = '';
 
                     if (this.filterable) {
                         this.query = '';
@@ -245,11 +248,11 @@
                 }
             },
             updateMultipleSelected (init = false, slot = false) {
-                if (this.multiple && Array.isArray(this.model)) {
+                if (this.multiple && Array.isArray(this.propModel)) {
                     let selected = [];
 
-                    for (let i = 0; i < this.model.length; i++) {
-                        const model = this.model[i];
+                    for (let i = 0; i < this.propModel.length; i++) {
+                        const model = this.propModel[i];
 
                         for (let j = 0; j < this.options.length; j++) {
                             const option = this.options[j];
@@ -273,26 +276,26 @@
                         }
 
                         // if slot change and remove a selected option, emit user
-                        if (this.model.length === selectedModel.length) {
+                        if (this.propModel.length === selectedModel.length) {
                             this.slotChangeDuration = true;
                         }
 
-                        this.model = selectedModel;
+                        this.propModel = selectedModel;
                     }
                 }
-                this.toggleMultipleSelected(this.model, init);
+                this.toggleMultipleSelected(this.propModel, init);
             },
             removeTag (index) {
                 if (this.disabled) {
                     return false;
                 }
-                this.model.splice(index, 1);
+                this.propModel.splice(index, 1);
 
                 if (this.filterable && this.visible) {
-                    this.$els.input.focus();
+                    this.$refs.input.focus();
                 }
 
-                this.$broadcast('on-update-popper');
+                this.$refs.dropdown.$emit('on-update-popper');
             },
             // to select option for single
             toggleSingleSelected (value, init = false) {
@@ -316,13 +319,13 @@
                                 value: value,
                                 label: label
                             });
-                            this.$dispatch('on-form-change', {
+                            this.$emit('on-form-change', {
                                 value: value,
                                 label: label
                             });
                         } else {
                             this.$emit('on-change', value);
-                            this.$dispatch('on-form-change', value);
+                            this.$emit('on-form-change', value);
                         }
                     }
                 }
@@ -351,10 +354,12 @@
                     if (!init) {
                         if (this.labelInValue) {
                             this.$emit('on-change', hybridValue);
-                            this.$dispatch('on-form-change', hybridValue);
+                            // this.$dispatch('on-form-change', hybridValue);
+                            this.$emit('on-form-change', hybridValue);
                         } else {
                             this.$emit('on-change', value);
-                            this.$dispatch('on-form-change', value);
+                            // this.$dispatch('on-form-change', value);
+                            this.$emit('on-form-change', value);
                         }
                     }
                 }
@@ -445,7 +450,7 @@
             },
             handleBlur () {
                 setTimeout(() => {
-                    const model = this.model;
+                    const model = this.propModel;
 
                     if (this.multiple) {
                         this.query = '';
@@ -463,11 +468,11 @@
                 }, 300);
             },
             resetInputState () {
-                this.inputLength = this.$els.input.value.length * 12 + 20;
+                this.inputLength = this.$refs.input.value.length * 12 + 20;
             },
             handleInputDelete () {
-                if (this.multiple && this.model.length && this.query === '') {
-                    this.removeTag(this.model.length - 1);
+                if (this.multiple && this.propModel.length && this.query === '') {
+                    this.removeTag(this.propModel.length - 1);
                 }
             },
             // use when slot changed
@@ -479,10 +484,10 @@
                 if (!this.filterable) return;
                 this.query = query;
             },
-            modelToQuery() {
-                if (!this.multiple && this.filterable && this.model) {
+            propModelToQuery() {
+                if (!this.multiple && this.filterable && this.propModel) {
                     this.findChild((child) => {
-                        if (this.model === child.value) {
+                        if (this.propModel === child.value) {
                             if (child.label) {
                                 this.query = child.label;
                             } else if (child.searchLabel) {
@@ -493,10 +498,46 @@
                         }
                     });
                 }
+            },
+            onSelectSelected (value) {
+                if (this.propModel === value) {
+                    this.hideMenu();
+                } else {
+                    if (this.multiple) {
+                        // @todo propModel 可能不是数组
+                        const index = this.propModel.indexOf(value);
+                        if (index >= 0) {
+                            this.removeTag(index);
+                        } else {
+                            this.propModel.push(value);
+                            this.$refs.dropdown.$emit('on-update-popper');
+                        }
+
+                        if (this.filterable) {
+                            this.query = '';
+                            this.$refs.input.focus();
+                        }
+                    } else {
+                        // @todo prop 不能修改
+                        this.propModel = value;
+
+                        if (this.filterable) {
+                            this.findChild((child) => {
+                                if (child.value === value) {
+                                    this.query = child.label === undefined ? child.searchLabel : child.label;
+                                }
+                            });
+                        }
+                    }
+                }
             }
         },
-        compiled () {
-            this.modelToQuery();
+        mounted () {
+            // model="[]" 没有发生watch
+            if (Array.isArray(this.model)) {
+                this.propModel = [];
+            }
+            this.propModelToQuery();
 
             this.updateOptions(true);
             document.addEventListener('keydown', this.handleKeydown);
@@ -504,18 +545,21 @@
             // watch slot changed
             if (MutationObserver) {
                 this.observer = new MutationObserver(() => {
-                    this.modelToQuery();
+                    this.propModelToQuery();
                     this.slotChange();
                     this.updateOptions(true, true);
                 });
 
-                this.observer.observe(this.$els.options, {
-//                attributes: true,
+                this.observer.observe(this.$refs.options, {
+                    // attributes: true,
                     childList: true,
                     characterData: true,
                     subtree: true
                 });
             }
+            this.$on('on-select-selected', function (value) {
+                this.onSelectSelected(value);
+            });
         },
         beforeDestroy () {
             document.removeEventListener('keydown', this.handleKeydown);
@@ -524,8 +568,11 @@
             }
         },
         watch: {
-            model () {
-                this.modelToQuery();
+            model (val) {
+                this.propModel = val;
+            },
+            propModel (val) {
+                this.propModelToQuery();
                 if (this.multiple) {
                     if (this.slotChangeDuration) {
                         this.slotChangeDuration = false;
@@ -535,21 +582,26 @@
                 } else {
                     this.updateSingleSelected();
                 }
+                // 实现1.0 sync
+                this.$emit('prop-change-model', val);
             },
             visible (val) {
                 if (val) {
                     if (this.multiple && this.filterable) {
-                        this.$els.input.focus();
+                        this.$refs.input.focus();
                     }
-                    this.$broadcast('on-update-popper');
+                    this.$refs.dropdown.$emit('on-update-popper');
+                    // this.$broadcast('on-update-popper');
                 } else {
                     if (this.filterable) {
-                        this.$els.input.blur();
+                        this.$refs.input.blur();
                     }
-                    this.$broadcast('on-destroy-popper');
+                    this.$refs.dropdown.$emit('on-destroy-popper');
+                    // this.$broadcast('on-destroy-popper');
                 }
             },
             query (val) {
+                // @todo
                 this.$broadcast('on-query-change', val);
                 let is_hidden = true;
 
@@ -561,39 +613,7 @@
                     });
                     this.notFound = is_hidden;
                 });
-                this.$broadcast('on-update-popper');
-            }
-        },
-        events: {
-            'on-select-selected' (value) {
-                if (this.model === value) {
-                    this.hideMenu();
-                } else {
-                    if (this.multiple) {
-                        const index = this.model.indexOf(value);
-                        if (index >= 0) {
-                            this.removeTag(index);
-                        } else {
-                            this.model.push(value);
-                            this.$broadcast('on-update-popper');
-                        }
-
-                        if (this.filterable) {
-                            this.query = '';
-                            this.$els.input.focus();
-                        }
-                    } else {
-                        this.model = value;
-
-                        if (this.filterable) {
-                            this.findChild((child) => {
-                                if (child.value === value) {
-                                    this.query = child.label === undefined ? child.searchLabel : child.label;
-                                }
-                            });
-                        }
-                    }
-                }
+                this.$refs.dropdown.$emit('on-update-popper');
             }
         }
     };
