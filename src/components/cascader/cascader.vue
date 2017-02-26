@@ -47,12 +47,12 @@
                     return [];
                 }
             },
-            value: {
-                type: Array,
-                default () {
-                    return [];
-                }
-            },
+            // value: {
+            //     type: Array,
+            //     default () {
+            //         return [];
+            //     }
+            // },
             disabled: {
                 type: Boolean,
                 default: false
@@ -93,6 +93,7 @@
                 visible: false,
                 selected: [],
                 tmpSelected: [],
+                value: [],
                 updatingValue: false    // to fix set value in changeOnSelect type
             };
         },
@@ -155,6 +156,7 @@
                 }
             },
             emitValue (val, oldVal) {
+                // debugger;
                 if (JSON.stringify(val) !== oldVal) {
                     this.$emit('on-change', this.value, JSON.parse(JSON.stringify(this.selected)));
                     // @todo  $dispatch>$emit?
@@ -162,6 +164,7 @@
                 }
             },
             onResultChange (lastValue, changeOnSelect, fromInit) {
+                // debugger;
                 if (lastValue || changeOnSelect) {
                     const oldVal = JSON.stringify(this.value);
                     this.selected = this.tmpSelected;

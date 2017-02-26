@@ -1,5 +1,5 @@
 <template>
-<!-- <div> -->
+<div style="display: inline-block;">
     <ul v-if="data && data.length" :class="[prefixCls + '-menu']">
         <Casitem
             v-for="item in data"
@@ -8,8 +8,9 @@
             :tmp-item="tmpItem"
             @click.native.stop="handleClickItem(item)"
             @mouseenter.native.stop="handleHoverItem(item)"></Casitem>
-    </ul><Caspanel v-else-if="sublist && sublist.length" :prefix-cls="prefixCls" :data="sublist" :disabled="disabled" :trigger="trigger" :change-on-select="changeOnSelect"></Caspanel>
-<!-- </div> -->
+    </ul>
+    <Caspanel v-if="sublist && sublist.length" :prefix-cls="prefixCls" :data="sublist" :disabled="disabled" :trigger="trigger" :change-on-select="changeOnSelect"></Caspanel>
+</div>
 </template>
 <script>
     import Casitem from './casitem.vue';
@@ -58,14 +59,28 @@
                 const backItem = this.getBaseItem(item);
                 this.tmpItem = backItem;
                 this.emitUpdate([backItem]);
+                let lastValue = false;
                 if (item.children && item.children.length){
                     this.sublist = item.children;
-                    this.$parent.$parent.$emit('on-result-change', false, this.changeOnSelect, fromInit);
+                    lastValue = false;
+                    // this.$parent.$parent.$emit('on-result-change', false, this.changeOnSelect, fromInit);
                     // this.$dispatch('on-result-change', false, this.changeOnSelect, fromInit);
                 } else {
                     this.sublist = [];
-                    this.$parent.$parent.$emit('on-result-change', false, this.changeOnSelect, fromInit);
+                    lastValue = true;
+                    // this.$parent.$parent.$emit('on-result-change', false, this.changeOnSelect, fromInit);
                     // this.$dispatch('on-result-change', true, this.changeOnSelect, fromInit);
+                }
+                let parent = this.$parent;
+                let componentTag = parent.$options._componentTag;
+                while (parent && (!componentTag || componentTag.toLocaleLowerCase() !== 'cascader')) {
+                    parent = parent.$parent;
+                    if (parent) {
+                        componentTag = parent.$options._componentTag;
+                    }
+                }
+                if (parent) {
+                    parent.$emit('on-result-change', lastValue, this.changeOnSelect, fromInit);
                 }
             },
             updateResult (item) {
