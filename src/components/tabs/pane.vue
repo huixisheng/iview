@@ -7,9 +7,9 @@
     export default {
         name: 'TabPane',
         props: {
-            key: {
-                type: String
-            },
+            // ikey: {
+            //     type: String
+            // },
             label: {
                 type: String,
                 default: ''
@@ -29,7 +29,8 @@
         data () {
             return {
                 prefixCls: prefixCls,
-                show: true
+                show: true,
+                ikey: ''
             };
         },
         methods: {

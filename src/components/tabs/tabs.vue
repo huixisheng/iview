@@ -57,7 +57,8 @@
                 prefixCls: prefixCls,
                 navList: [],
                 barWidth: 0,
-                barOffset: 0
+                barOffset: 0,
+                propActiveKey: ''
             };
         },
         computed: {
@@ -88,7 +89,7 @@
                 ];
             },
             contentStyle () {
-                const x = this.navList.findIndex((nav) => nav.key === this.activeKey);
+                const x = this.navList.findIndex((nav) => nav.ikey === this.propActiveKey);
                 const p = x === 0 ? '0%' : `-${x}00%`;
 
                 let style = {};
@@ -124,13 +125,13 @@
                     this.navList.push({
                         label: pane.label,
                         icon: pane.icon || '',
-                        key: pane.key || index,
+                        ikey: pane.ikey || index,
                         disabled: pane.disabled,
                         closable: pane.closable
                     });
-                    if (!pane.key) pane.key = index;
+                    if (!pane.ikey) pane.ikey = index;
                     if (index === 0) {
-                        if (!this.activeKey) this.activeKey = pane.key || index;
+                        if (!this.propActiveKey) this.propActiveKey = pane.ikey || index;
                     }
                 });
                 this.updateStatus();
@@ -138,7 +139,7 @@
             },
             updateBar () {
                 this.$nextTick(() => {
-                    const index = this.navList.findIndex((nav) => nav.key === this.activeKey);
+                    const index = this.navList.findIndex((nav) => nav.ikey === this.propActiveKey);
                     const prevTabs = this.$refs.nav.querySelectorAll(`.${prefixCls}-tab`);
                     const tab = prevTabs[index];
                     this.barWidth = parseFloat(getStyle(tab, 'width'));
@@ -158,29 +159,29 @@
             },
             updateStatus () {
                 const tabs = this.getTabs();
-                tabs.forEach(tab => tab.show = (tab.key === this.activeKey) || this.animated);
+                tabs.forEach(tab => tab.show = (tab.ikey === this.propActiveKey) || this.animated);
             },
             tabCls (item) {
                 return [
                     `${prefixCls}-tab`,
                     {
                         [`${prefixCls}-tab-disabled`]: item.disabled,
-                        [`${prefixCls}-tab-active`]: item.key === this.activeKey
+                        [`${prefixCls}-tab-active`]: item.key === this.propActiveKey
                     }
                 ];
             },
             handleChange (index) {
                 const nav = this.navList[index];
                 if (nav.disabled) return;
-                this.activeKey = nav.key;
-                this.$emit('on-click', nav.key);
+                this.propActiveKey = nav.ikey;
+                this.$emit('on-click', nav.ikey);
             },
             handleRemove (index) {
                 const tabs = this.getTabs();
                 const tab = tabs[index];
                 tab.$destroy(true);
 
-                if (tab.key === this.activeKey) {
+                if (tab.ikey === this.propActiveKey) {
                     const newTabs = this.getTabs();
                     let activeKey = -1;
 
@@ -196,9 +197,9 @@
                             activeKey = newTabs[0].key;
                         }
                     }
-                    this.activeKey = activeKey;
+                    this.propActiveKey = activeKey;
                 }
-                this.$emit('on-tab-remove', tab.key);
+                this.$emit('on-tab-remove', tab.ikey);
                 this.updateNav();
             },
             showClose (item) {
@@ -214,9 +215,14 @@
             }
         },
         watch: {
-            activeKey () {
+            activeKey (val) {
+                this.propActiveKey = val;
+
+            },
+            propActiveKey () {
                 this.updateBar();
                 this.updateStatus();
+                // @todo 通知父组件
             }
         }
     };
