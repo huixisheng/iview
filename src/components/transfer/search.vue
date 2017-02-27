@@ -1,7 +1,8 @@
 <template>
     <div :class="prefixCls">
         <i-input
-            :value.sync="query"
+            @on-form-change="valueChange"
+            :value="propQuery"
             size="small"
             :icon="icon"
             :placeholder="placeholder"
@@ -18,6 +19,11 @@
             placeholder: String,
             query: String
         },
+        data () {
+            return {
+                propQuery: ''
+            }
+        },
         computed: {
             icon () {
                 return this.query === '' ? 'ios-search' : 'ios-close';
@@ -27,6 +33,18 @@
             handleClick () {
                 if (this.query === '') return;
                 this.query = '';
+            },
+            valueChange (val) {
+                this.propQuery = val;
+            }
+        },
+        watch: {
+            propQuery (val) {
+                // @todo
+                this.$parent.$emit('prop-change-query', val);
+            },
+            query (val) {
+                this.propQuery = val;
             }
         },
         events: {

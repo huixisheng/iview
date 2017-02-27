@@ -1,7 +1,7 @@
 <template>
     <div :class="classes" :style="style">
         <div :class="prefixCls + '-header'">
-            <Checkbox :checked.sync="checkedAll" :disabled="checkedAllDisabled" @on-change="toggleSelectAll"></Checkbox>
+            <Checkbox :checked="checkedAll" :disabled="checkedAllDisabled" @on-change="toggleSelectAll"></Checkbox>
             <span>{{ title }}</span>
             <span :class="prefixCls + '-header-count'">{{ count }}</span>
         </div>
@@ -9,7 +9,7 @@
             <div :class="prefixCls + '-body-search-wrapper'" v-if="filterable">
                 <Search
                     :prefix-cls="prefixCls + '-search'"
-                    :query.sync="query"
+                    :query="query"
                     :placeholder="filterPlaceholder"></Search>
             </div>
             <!--
@@ -18,7 +18,7 @@
             -->
             <ul :class="prefixCls + '-content'">
                 <li
-                    v-for="item in showItems"
+                    v-for="item in filterByData"
                     :class="itemClasses(item)"
                     @click.prevent="select(item)">
                     <Checkbox :checked="isCheck(item)" :disabled="item.disabled"></Checkbox>
@@ -37,6 +37,7 @@
     export default {
         components: { Search, Checkbox },
         props: {
+            type: String,
             prefixCls: String,
             data: Array,
             renderFormat: Function,
@@ -53,10 +54,20 @@
             return {
                 showItems: [],
                 query: '',
-                showFooter: true
+                showFooter: true,
+                propCheckedKeys: []
             };
         },
         computed: {
+            filterByData () {
+                var self = this;
+                var query = self.query;
+                return self.showItems.filter(function (item) {
+                    const type = ('label' in item) ? 'label' : 'key';
+                    return item[type].indexOf(query) > -1;
+                });
+                // return this.filterMethod(this.showItems, this.query);
+            },
             classes () {
                 return [
                     `${this.prefixCls}`,
@@ -98,20 +109,27 @@
                 return this.renderFormat(item);
             },
             isCheck (item) {
-                return this.checkedKeys.some(key => key === item.key);
+                var result = this.propCheckedKeys.some(key => key === item.key);
+                console.log(this.propCheckedKeys);
+                console.log(result);
+                return result;
             },
             select (item) {
                 if (item.disabled) return;
-                const index = this.checkedKeys.indexOf(item.key);
-                index > -1 ? this.checkedKeys.splice(index, 1) : this.checkedKeys.push(item.key);
+                const index = this.propCheckedKeys.indexOf(item.key);
+                index > -1 ? this.propCheckedKeys.splice(index, 1) : this.propCheckedKeys.push(item.key);
             },
             updateFilteredData () {
                 this.showItems = this.data;
+                console.log(this.propCheckedKeys);
+                console.log(JSON.stringify(this.data));
             },
             toggleSelectAll (status) {
-                this.checkedKeys = status ?
-                        this.data.filter(data => !data.disabled || this.checkedKeys.indexOf(data.key) > -1).map(data => data.key) :
-                        this.data.filter(data => data.disabled && this.checkedKeys.indexOf(data.key) > -1).map(data => data.key);
+                this.propCheckedKeys = status ?
+                        this.data.filter(data => !data.disabled || this.propCheckedKeys.indexOf(data.key) > -1).map(data => data.key) :
+                        this.data.filter(data => data.disabled && this.propCheckedKeys.indexOf(data.key) > -1).map(data => data.key);
+                console.log(JSON.stringify(this.data));
+                console.log(this.propCheckedKeys);
             },
             filterData (value) {
                 return this.filterMethod(value, this.query);
@@ -121,13 +139,22 @@
             this.updateFilteredData();
         },
         mounted () {
+            this.$on('prop-change-query', function (val) {
+                this.query = val;
+            });
             if (this.$refs.footer) {
                 this.showFooter = this.$refs.footer.innerHTML !== '';
+            }
+            if (Array.isArray(this.checkedKeys)) {
+                this.propCheckedKeys = this.checkedKeys;
             }
         },
         watch: {
             data () {
                 this.updateFilteredData();
+            },
+            propCheckedKeys (val) {
+                this.$parent.$emit('prop-change-checkedkey', val, this.type);
             }
         }
     };

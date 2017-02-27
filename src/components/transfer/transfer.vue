@@ -2,11 +2,12 @@
     <div :class="classes">
         <List
             ref="left"
+            :type="'left'"
             :prefix-cls="prefixCls + '-list'"
             :data="leftData"
             :render-format="renderFormat"
-            :checked-keys.sync="leftCheckedKeys"
-            :valid-keys-count.sync="leftValidKeysCount"
+            :checked-keys="leftCheckedKeys"
+            :valid-keys-count="leftValidKeysCount"
             :style="listStyle"
             :title="titles[0]"
             :filterable="filterable"
@@ -14,17 +15,20 @@
             :filter-method="filterMethod"
             :not-found-text="notFoundText">
             <slot></slot>
-        </List><Operation
+        </List>
+        <Operation
             :prefix-cls="prefixCls"
             :operations="operations"
             :left-active="leftValidKeysCount > 0"
-            :right-active="rightValidKeysCount > 0"></Operation><List
+            :right-active="rightValidKeysCount > 0"></Operation>
+        <List
             ref="right"
+            :type="'right'"
             :prefix-cls="prefixCls + '-list'"
             :data="rightData"
             :render-format="renderFormat"
-            :checked-keys.sync="rightCheckedKeys"
-            :valid-keys-count.sync="rightValidKeysCount"
+            :checked-keys="rightCheckedKeys"
+            :valid-keys-count="rightValidKeysCount"
             :style="listStyle"
             :title="titles[1]"
             :filterable="filterable"
@@ -101,7 +105,11 @@
                 type: Function,
                 default (data, query) {
                     const type = ('label' in data) ? 'label' : 'key';
-                    return data[type].indexOf(query) > -1;
+                    if(Array.isArray(data) && data.length > 0) {
+                        return data[type].indexOf(query) > -1;
+                    } else {
+                        return false;
+                    }
                 }
             },
             notFoundText: {
@@ -177,8 +185,18 @@
 
                 this.$refs[opposite].toggleSelectAll(false);
                 this.$emit('on-change', newTargetKeys, direction, moveKeys);
-                this.$dispatch('on-form-change', newTargetKeys, direction, moveKeys);
+                // @todo $dispatch
+                this.$emit('on-form-change', newTargetKeys, direction, moveKeys);
             }
+        },
+        mounted () {
+            this.$on('prop-change-checkedkey', function(val, type) {
+                if( type === 'left') {
+                    this.leftCheckedKeys = val;
+                } else if( type === 'right') {
+                    this.rightCheckedKeys = val;
+                }
+            });
         },
         watch: {
             targetKeys () {

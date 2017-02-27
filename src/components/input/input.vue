@@ -12,7 +12,7 @@
                 :maxlength="maxlength"
                 :readonly="readonly"
                 :name="name"
-                v-model="value"
+                v-model="propValue"
                 :number="number"
                 @keyup.enter="handleEnter"
                 @focus="handleFocus"
@@ -26,7 +26,7 @@
                 :maxlength="maxlength"
                 :readonly="readonly"
                 :name="name"
-                v-model="value"
+                v-model="propValue"
                 :number="number"
                 @keyup.enter="handleEnter"
                 @focus="handleFocus"
@@ -45,7 +45,7 @@
             :maxlength="maxlength"
             :readonly="readonly"
             :name="name"
-            v-model="value"
+            v-model="propValue"
             @keyup.enter="handleEnter"
             @focus="handleFocus"
             @blur="handleBlur"
@@ -115,7 +115,8 @@
                 prepend: true,
                 append: true,
                 slotReady: false,
-                textareaStyles: {}
+                textareaStyles: {},
+                propValue: ''
             };
         },
         computed: {
@@ -161,7 +162,7 @@
             handleBlur () {
                 this.$emit('on-blur');
                 // @todo
-                this.$on('on-form-blur', this.value);
+                this.$on('on-form-blur', this.propValue);
                 // this.$dispatch('on-form-blur', this.value);
             },
             handleChange (event) {
@@ -191,12 +192,15 @@
             }
         },
         watch: {
-            value () {
+            value (val) {
+                this.propValue = val;
+                // this.$dispatch('on-form-change', this.value);
+            },
+            propValue () {
+                this.$emit('on-form-change', this.propValue);
                 this.$nextTick(() => {
                     this.resizeTextarea();
                 });
-                // this.$dispatch('on-form-change', this.value);
-                this.$emit('on-form-change', this.value);
             }
         },
         mounted () {

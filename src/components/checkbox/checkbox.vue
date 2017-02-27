@@ -15,10 +15,10 @@
                 type="checkbox"
                 :class="inputClasses"
                 :disabled="disabled"
-                v-model="checked"
+                v-model="propChecked"
                 @change="change">
         </span>
-        <slot v-if="showSlot"><span ref="slot">{{ value }}</span></slot>
+        <slot v-if="showSlot"><span ref="slot" v-text="propChecked"></span></slot>
     </label>
 </template>
 <script>
@@ -33,10 +33,10 @@
             value: {
                 type: [String, Number, Boolean]
             },
-            // checked: {
-            //     type: Boolean,
-            //     default: false
-            // },
+            checked: {
+                type: Boolean,
+                default: false
+            },
             indeterminate: {
                 type: Boolean,
                 default: false
@@ -48,7 +48,7 @@
                 selected: false,
                 group: false,
                 showSlot: true,
-                checked: false
+                propChecked: false
             };
         },
         computed: {
@@ -99,17 +99,21 @@
                 if (this.group) {
                     this.$parent.change(this.model);
                 } else {
-                    this.$emit('on-change', this.checked);
-                    this.$emit('on-form-change', this.checked);
+                    this.$emit('on-change', this.propChecked);
+                    this.$emit('on-form-change', this.propChecked);
                 }
             },
             updateModel () {
-                this.selected = this.checked;
+                this.selected = this.propChecked;
             }
         },
         watch: {
-            checked () {
+            checked (val) {
+                this.propChecked = val;
+            },
+            propChecked () {
                 this.updateModel();
+                // @todo 通知 cheched
             }
         }
     };
