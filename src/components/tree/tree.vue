@@ -17,8 +17,8 @@
                 v-if="!item.isLeaf"
                 v-show="item.expand"
                 :class="expandCls(item)"
-                :data.sync="item.children"
-                :key="key + '.' + index"
+                :data="item.children"
+                :ikey="ikey + '.' + index"
                 :multiple="multiple"
                 :show-checkbox="showCheckbox"
                 transition="slide-up"></tree>
@@ -42,7 +42,7 @@
                     return [];
                 }
             },
-            key: {
+            ikey: {
                 type: String,
                 default: '0'
             },
@@ -68,7 +68,7 @@
         },
         computed: {
             classes () {
-                if (this.key === '0') {
+                if (this.ikey === '0') {
                     return this.prefixCls;
                 } else {
                     return `${this.prefixCls}-child-tree`;
@@ -77,9 +77,9 @@
         },
         watch: {
             data(){
-                if (this.key === '0') {
+                if (this.ikey === '0') {
                     this.setKey();
-                    this.preHandle();
+                    // this.preHandle();
                 }
             }
         },
@@ -118,44 +118,72 @@
             },
             setKey () {
                 for (let i = 0; i < this.data.length; i++) {
-                    this.data[i].key = `${this.key}.${i}`;
+                    this.data[i].ikey = `${this.ikey}.${i}`;
                 }
             },
             preHandle () {
                 for (let [i,item] of this.data.entries()) {
-                    // @todo
+                    // @todo check
                     if (!item.children || !item.children.length) {
-                        this.$set(`data[${i}].isLeaf`, true);
-                        this.$set(`data[${i}].childrenCheckedStatus`, 2);
+                        let dataItem = item;
+                        dataItem.isLeaf = true;
+                        dataItem.childrenCheckedStatus = 2;
+                        this.$set(this.data, i, dataItem);
+
+                        // this.$set(`data[${i}].isLeaf`, true);
+                        // this.$set(`data[${i}].childrenCheckedStatus`, 2);
                         continue;
                     }
                     if (item.checked && !item.childrenCheckedStatus) {
-                        this.$set(`data[${i}].childrenCheckedStatus`, 2);
+                        let dataItem = item;
+                        dataItem.childrenCheckedStatus = 2;
+                        // this.$set(`data[${i}].childrenCheckedStatus`, 2);
+                        this.$set(this.data, i, dataItem);
                         this.$broadcast('parentChecked', true, `${this.key}.${i}`);
                     } else {
                         let status = this.getChildrenCheckedStatus(item.children);
-                        this.$set(`data[${i}].childrenCheckedStatus`, status);
-                        if (status !== 0) this.$set(`data[${i}].checked`, true);
+                        // debugger;
+                        let dataItem = item;
+                        dataItem.childrenCheckedStatus = status;
+                        // this.$set(this.data, i, dataItem);
+                        // this.$set(`data[${i}].childrenCheckedStatus`, status);
+                        if (status !== 0){
+                            dataItem.checked = true;
+                            this.$set(this.data, i, dataItem);
+                            // this.$set(`data[${i}].checked`, true);
+                        }
                     }
                 }
             },
             setExpand (disabled, index) {
                 if (!disabled) {
-                    this.$set(`data[${index}].expand`, !this.data[index].expand);
+                    let dataItem = this.data[index];
+                    dataItem['expand'] = !dataItem['expand'];
+                    this.$set(this.data, index, dataItem);
+                    // this.$set(`data[${index}].expand`, !this.data[index].expand);
                 }
             },
             setSelect (disabled, index) {
                 if (!disabled) {
-                    const selected = !this.data[index].selected;
+                    let dataItem = this.data[index];
+                    const selected = !dataItem.selected;
                     if (this.multiple || !selected) {
-                        this.$set(`data[${index}].selected`, selected);
+                        dataItem['selected'] = selected;
+                        this.$set(this.data, index, dataItem);
+                        // this.$set(`data[${index}].selected`, selected);
                     } else {
                         for (let i = 0; i < this.data.length; i++) {
+                            let dataItem = data[i];
+                            let selected = false;
                             if (i == index) {
-                                this.$set(`data[${i}].selected`, true);
+                                selected = true;
+                                // this.$set(`data[${i}].selected`, true);
                             } else {
-                                this.$set(`data[${i}].selected`, false);
+                                selected= false;
+                                // this.$set(`data[${i}].selected`, false);
                             }
+                            dataItem['selected'] = selected;
+                            this.$set(this.data, i, dataItem)
                         }
                     }
                     this.$dispatch('nodeSelected', this, selected);
@@ -163,9 +191,12 @@
             },
             setCheck (disabled, index) {
                 if (disabled) return;
-                const checked = !this.data[index].checked;
-                this.$set(`data[${index}].checked`, checked);
-                this.$set(`data[${index}].childrenCheckedStatus`, checked ? 2 : 0);
+                const dataItem = this.data[index];
+                dataItem['checked'] = !dataItem['checked'];
+                dataItem['childrenCheckedStatus'] = dataItem['checked'] ? 2: 0;
+                this.$set(this.data, index, dataItem);
+                // this.$set(`data[${index}].checked`, checked);
+                // this.$set(`data[${index}].childrenCheckedStatus`, checked ? 2 : 0);
                 this.$dispatch('childChecked', this, this.key);
                 this.$broadcast('parentChecked', checked, `${this.key}.${index}`);
             },
@@ -214,6 +245,13 @@
                 } else {
                     return 0;
                 }
+            },
+            $dispatch (eventName, context, val) {
+                let parent = this.$parent;
+                while(parent) {
+                    parent.$emit(eventName, context, val);
+                    parent = this.$parent;
+                }
             }
         },
         mounted (){
@@ -238,15 +276,23 @@
                 this.$broadcast('cancelSelected', ori);
                 if (this !== ori) {
                     for (let i = 0; i < this.data.length; i++) {
-                        this.$set(`data[${i}].selected`, false);
+                        let dataItem = this.data[i];
+                        dataItem.selected = false;
+                        this.$set(this.data, i, dataItem);
+                        // this.$set(`data[${i}].selected`, false);
                     }
                 }
             });
             this.$on('parentChecked', (status, key) => {
                 if (this.key == key || this.key.startsWith(key + '.')) {
                     for (let i = 0; i < this.data.length; i++) {
-                        this.$set(`data[${i}].checked`, status);
-                        this.$set(`data[${i}].childrenCheckedStatus`, status ? 2 : 0);
+                        let dataItem = this.data[i];
+                        dataItem.checked = status;
+                        dataItem.childrenCheckedStatus = status ? 2: 0;
+                        this.$set(this.data, i, dataItem);
+
+                        // this.$set(`data[${i}].checked`, status);
+                        // this.$set(`data[${i}].childrenCheckedStatus`, status ? 2 : 0);
                     }
                     this.$broadcast('parentChecked', status, key);
                 }
@@ -262,8 +308,12 @@
                     if (this.key + '.' + i == key) {
                         let temp = this.getChildrenCheckedStatus(item.children);
                         if (temp != item.childrenCheckedStatus) {
-                            this.$set(`data[${i}].checked`, !!temp);
-                            this.$set(`data[${i}].childrenCheckedStatus`, temp);
+                            let dataItem = this.data[i];
+                            dataItem.checked = !!temp;
+                            dataItem.childrenCheckedStatus = temp;
+                            this.$set(this.data, i, dataItem);
+                            // this.$set(`data[${i}].checked`, !!temp);
+                            // this.$set(`data[${i}].childrenCheckedStatus`, temp);
                             if (this.key !== '0') this.$dispatch('childChecked', this, this.key);
                         }
                     }

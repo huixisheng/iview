@@ -33,7 +33,6 @@
     import { t } from '../../locale';
 
     const prefixCls = 'ivu-modal';
-    // @todo transition 动画
 
     export default {
         components: { Icon, iButton },
@@ -73,7 +72,7 @@
                 type: Boolean,
                 default: false
             },
-            style: {
+            propStyle: {
                 type: Object
             },
             className: {
@@ -121,7 +120,7 @@
                     width: `${this.width}px`
                 };
 
-                const customStyle = this.style ? this.style : {};
+                const customStyle = this.propStyle ? this.propStyle : {};
 
                 Object.assign(style, styleWidth, customStyle);
 

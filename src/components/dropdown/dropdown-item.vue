@@ -6,7 +6,7 @@
 
     export default {
         props: {
-            key: {
+            ikey: {
                 type: [String, Number]
             },
             disabled: {
@@ -36,7 +36,7 @@
         },
         methods: {
             handleClick () {
-                const $parent = this.$parent.$parent;
+                let $parent = this.$parent.$parent;
                 const hasChildren = this.$parent && this.$parent.$options.name === 'Dropdown';
 
                 if (this.disabled) {
@@ -46,11 +46,17 @@
                 } else if (hasChildren) {
                     this.$parent.$emit('on-haschild-click');
                 } else {
-                    if ($parent && $parent.$options.name === 'Dropdown') {
+                    // @todo
+                    while($parent) {
                         $parent.$emit('on-hover-click');
+                        $parent = $parent.$parent;
                     }
+                    // 父子组件关系同v1.x 不同
+                    // if ($parent && $parent.$options.name === 'Drop') {
+                    //     $parent.$parent.$emit('on-hover-click');
+                    // }
                 }
-                $parent.$emit('on-click', this.key);
+                $parent.$emit('on-click', this.ikey);
             }
         }
     };

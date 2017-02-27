@@ -21,7 +21,8 @@ function getNoticeInstance () {
         prefixCls: prefixCls,
         style: {
             top: `${top}px`,
-            right: 0
+            right: 0,
+            left: 'auto' // 默认设置了 left: '50%'
         }
     });
 

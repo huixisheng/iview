@@ -73,6 +73,7 @@
             },
             propModel () {
                 this.updateModel();
+                this.$emit('prop-change-model', this.propModel);
             }
         }
     };

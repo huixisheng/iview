@@ -9,7 +9,7 @@
                             <div :class="tabCls(item)" v-for="(item, index) in navList" @click="handleChange(index)">
                                 <Icon v-if="item.icon !== ''" :type="item.icon"></Icon>
                                 {{ item.label }}
-                                <Icon v-if="showClose(item)" type="ios-close-empty" @click.stop="handleRemove(index)"></Icon>
+                                <Icon v-if="showClose(item)" type="ios-close-empty" @click.stop.native="handleRemove(index)"></Icon>
                             </div>
                         </div>
                     </div>

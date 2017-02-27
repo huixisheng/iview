@@ -22,7 +22,7 @@
             ref="modal1"
             title="对话框标题"
             :visible="modal9"
-            :style="{top: '20px'}">
+            :prop-style="{top: '20px'}">
         <p>对话框内容</p>
         <p>对话框内容</p>
         <p>对话框内容</p>

@@ -1,6 +1,6 @@
 <template>
 <div>
-    <Menu mode="horizontal" :theme="theme1" :active-key.sync="ak">
+    <Menu mode="horizontal" :theme="theme1" :active-key="ak">
         <Menu-item ikey="1">
             <Icon type="ios-paper"></Icon>
             内容管理
@@ -33,12 +33,12 @@
     </Menu>
     <br>
     <p>切换主题</p>
-    <Radio-group :model.sync="theme1">
+    <Radio-group :model="theme1" v-on:prop-change-model="modelChange">
         <Radio value="light"></Radio>
         <Radio value="dark"></Radio>
         <Radio value="primary"></Radio>
     </Radio-group>
-    <i-button @click.native="ak = '2'">change</i-button>
+    <i-button @click.native="ak = '2'">change next</i-button>
 </div>
 </template>
 <script>
@@ -47,6 +47,12 @@
             return {
                 theme1: 'light',
                 ak: '1'
+            }
+        },
+        methods: {
+            modelChange (val) {
+                this.theme1 = val;
+                // debugger;
             }
         }
     }

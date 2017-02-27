@@ -5,7 +5,7 @@
             :min="min"
             :max="max"
             :step="step"
-            :value="value"
+            :value="propValue"
             :disabled="disabled"
             @on-change="handleInputChange"></Input-number>
         <div :class="[prefixCls + '-wrap']" ref="slider" @click.self="sliderClick">
@@ -18,7 +18,7 @@
                     :class="[prefixCls + '-button-wrap']"
                     :style="{left: firstPosition + '%'}"
                     @mousedown="onFirstButtonDown">
-                    <Tooltip :controlled="firstDragging" placement="top" :content="tipFormat(value[0])" :disabled="tipDisabled" :always="showTip === 'always'" ref="tooltip">
+                    <Tooltip :controlled="firstDragging" placement="top" :content="tipFormat(propValue[0])" :disabled="tipDisabled" :always="showTip === 'always'" ref="tooltip">
                         <div :class="button1Classes"></div>
                     </Tooltip>
                 </div>
@@ -26,7 +26,7 @@
                     :class="[prefixCls + '-button-wrap']"
                     :style="{left: secondPosition + '%'}"
                     @mousedown="onSecondButtonDown">
-                    <Tooltip :controlled="secondDragging" placement="top" :content="tipFormat(value[1])" :disabled="tipDisabled" :always="showTip === 'always'" ref="tooltip2">
+                    <Tooltip :controlled="secondDragging" placement="top" :content="tipFormat(propValue[1])" :disabled="tipDisabled" :always="showTip === 'always'" ref="tooltip2">
                         <div :class="button2Classes"></div>
                     </Tooltip>
                 </div>
@@ -36,7 +36,7 @@
                     :class="[prefixCls + '-button-wrap']"
                     :style="{left: singlePosition + '%'}"
                     @mousedown="onSingleButtonDown">
-                    <Tooltip :controlled="dragging" placement="top" :content="tipFormat(value)" :disabled="tipDisabled" :always="showTip === 'always'" ref="tooltip">
+                    <Tooltip :controlled="dragging" placement="top" :content="tipFormat(propValue)" :disabled="tipDisabled" :always="showTip === 'always'" ref="tooltip">
                         <div :class="buttonClasses"></div>
                     </Tooltip>
                 </div>
@@ -194,11 +194,23 @@
                 this.firstPosition = (this.propValue[0] - this.min) / (this.max - this.min) * 100,
                 this.secondPosition = (this.propValue[1] - this.min) / (this.max - this.min) * 100
             }
+            if (this.range) {
+                const isArray = Array.isArray(this.propValue);
+                if (!isArray || (isArray && this.propValue.length != 2) || (isArray && (isNaN(this.propValue[0]) || isNaN(this.propValue[1])))) {
+                    this.propValue = [this.min, this.max];
+                } else {
+                    this.updateValue(this.propValue, true);
+                }
+            } else {
+                if (typeof this.propValue !== 'number') {
+                    this.propValue = this.min;
+                }
+                this.updateValue(this.propValue);
+            }
         },
         watch: {
             value (val) {
                 this.propValue = val;
-
             },
             propValue () {
                 this.$nextTick(() => {
@@ -430,21 +442,6 @@
             },
             setSecondPosition (val) {
                 this.secondPosition = (val - this.min) / (this.max - this.min) * 100;
-            }
-        },
-        mounted () {
-            if (this.range) {
-                const isArray = Array.isArray(this.propValue);
-                if (!isArray || (isArray && this.propValue.length != 2) || (isArray && (isNaN(this.propValue[0]) || isNaN(this.propValue[1])))) {
-                    this.propValue = [this.min, this.max];
-                } else {
-                    this.updateValue(this.propValue, true);
-                }
-            } else {
-                if (typeof this.propValue !== 'number') {
-                    this.propValue = this.min;
-                }
-                this.updateValue(this.propValue);
             }
         }
     };

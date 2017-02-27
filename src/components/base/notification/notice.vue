@@ -27,7 +27,7 @@
                 type: Object,
                 default: function() {
                     return {
-                        right: '0'
+                        // right: '50%'
                     };
                 }
             },

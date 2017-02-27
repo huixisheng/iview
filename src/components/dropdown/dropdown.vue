@@ -5,7 +5,7 @@
         @mouseenter="handleMouseenter"
         @mouseleave="handleMouseleave">
         <div :class="[prefixCls]" ref="reference" @click="handleClick"><slot></slot></div>
-        <Drop v-show="visible" :placement="placement" :transition="transition" ref="drop"><slot name="list"></slot></Drop>
+        <Drop v-show="propVisible" :placement="placement" :transition="transition" ref="drop"><slot name="list"></slot></Drop>
     </div>
 </template>
 <script>
@@ -44,7 +44,8 @@
         },
         data () {
             return {
-                prefixCls: prefixCls
+                prefixCls: prefixCls,
+                propVisible: false
             };
         },
         methods: {
@@ -53,7 +54,7 @@
                 if (this.trigger !== 'click') {
                     return false;
                 }
-                this.visible = !this.visible;
+                this.propVisible = !this.propVisible;
             },
             handleMouseenter () {
                 if (this.trigger === 'custom') return false;
@@ -62,7 +63,7 @@
                 }
                 clearTimeout(this.timeout);
                 this.timeout = setTimeout(() => {
-                    this.visible = true;
+                    this.propVisible = true;
                 }, 250);
             },
             handleMouseleave () {
@@ -72,7 +73,7 @@
                 }
                 clearTimeout(this.timeout);
                 this.timeout = setTimeout(() => {
-                    this.visible = false;
+                    this.propVisible = false;
                 }, 150);
             },
             handleClose () {
@@ -80,7 +81,7 @@
                 if (this.trigger !== 'click') {
                     return false;
                 }
-                this.visible = false;
+                this.propVisible = false;
             },
             hasParent () {
                 const $parent = this.$parent.$parent;
@@ -89,10 +90,40 @@
                 } else {
                     return false;
                 }
+            },
+            onClick (key) {
+                const $parent = this.hasParent();
+                if ($parent ) $parent.$emit('on-click', key);
+            },
+            onHoverClick () {
+                const $parent = this.hasParent();
+                if ($parent) {
+                    this.$nextTick(() => {
+                        if (this.trigger === 'custom') return false;
+                        this.propVisible = false;
+                    });
+                    $parent.$emit('on-hover-click');
+                } else {
+                    this.$nextTick(() => {
+                        if (this.trigger === 'custom') return false;
+                        this.propVisible = false;
+                    });
+                }
+            },
+            onHaschildClick () {
+                this.$nextTick(() => {
+                    if (this.trigger === 'custom') return false;
+                    this.propVisible = true;
+                });
+                const $parent = this.hasParent();
+                if ($parent) $parent.$emit('on-haschild-click');
             }
         },
         watch: {
             visible (val) {
+                this.propVisible = val;
+            },
+            propVisible (val) {
                 if (val) {
                     this.$refs.drop.update();
                 } else {
@@ -101,34 +132,11 @@
                 this.$emit('on-visible-change', val);
             }
         },
-        events: {
-            'on-click' (key) {
-                const $parent = this.hasParent();
-                if ($parent ) $parent.$emit('on-click', key);
-            },
-            'on-hover-click' () {
-                const $parent = this.hasParent();
-                if ($parent) {
-                    this.$nextTick(() => {
-                        if (this.trigger === 'custom') return false;
-                        this.visible = false;
-                    });
-                    $parent.$emit('on-hover-click');
-                } else {
-                    this.$nextTick(() => {
-                        if (this.trigger === 'custom') return false;
-                        this.visible = false;
-                    });
-                }
-            },
-            'on-haschild-click' () {
-                this.$nextTick(() => {
-                    if (this.trigger === 'custom') return false;
-                    this.visible = true;
-                });
-                const $parent = this.hasParent();
-                if ($parent) $parent.$emit('on-haschild-click');
-            }
+        mounted () {
+            // @todo 验证
+            this.$on('on-click', this.onClick);
+            this.$on('on-hover-click', this.onHoverClick);
+            this.$on('on-haschild-click', this.onHaschildClick);
         }
     };
 </script>

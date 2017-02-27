@@ -35,7 +35,7 @@
                 default: function () {
                     return {
                         top: '65px',
-                        left: '50%'
+                        // left: '50%'
                     };
                 }
             },

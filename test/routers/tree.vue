@@ -1,6 +1,6 @@
 <template>
     <Tree
-        :data.sync="treeData"
+        :data="treeData"
         :show-checkbox="true"
         :multiple="true"
         @on-select-change="selectFn"
