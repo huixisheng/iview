@@ -1,6 +1,6 @@
 <template>
     <div style="width: 140px;margin:100px;">
-        {{ value }}
+        <div v-text="value"></div>
         <Slider @on-change="change" @on-input="input" :step="15"></Slider>
         <Slider :value="40" :tip-format="format"></Slider>
         <Slider :value.sync="value" show-input show-stops range @on-change="change" @on-input="input" :step="13"></Slider>

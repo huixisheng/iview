@@ -13,7 +13,7 @@
         </button>
         <ul :class="dotsClasses">
             <template v-for="n in slides.length">
-                <li :class="{ [`${prefixCls}-active`]: n === currentIndex }"
+                <li :class="{ [`${prefixCls}-active`]: n === propCurrentIndex }"
                     @click="dotsEvent('click', n)"
                     @mouseover="dotsEvent('hover', n)">
                     <button></button>
@@ -86,7 +86,8 @@
                 slides: [],
                 slideInstances: [],
                 timer: null,
-                ready: false
+                ready: false,
+                propCurrentIndex: 0
             };
         },
         computed: {
@@ -184,19 +185,19 @@
                 this.updateOffset();
             },
             add (offset) {
-                let index = this.currentIndex;
+                let index = this.propCurrentIndex;
                 index += offset;
                 while (index < 0) index += this.slides.length;
                 index = index % this.slides.length;
-                this.currentIndex = index;
+                this.propCurrentIndex = index;
             },
             arrowEvent (offset) {
                 this.setAutoplay();
                 this.add(offset);
             },
             dotsEvent (event, n) {
-                if (event === this.trigger && this.currentIndex !== n) {
-                    this.currentIndex = n;
+                if (event === this.trigger && this.propCurrentIndex !== n) {
+                    this.propCurrentIndex = n;
                     // Reset autoplay timer when trigger be activated
                     this.setAutoplay();
                 }
@@ -211,7 +212,7 @@
             },
             updateOffset () {
                 this.$nextTick(() => {
-                    this.trackOffset = this.currentIndex * this.listWidth;
+                    this.trackOffset = this.propCurrentIndex * this.listWidth;
                 });
             }
         },
@@ -226,11 +227,15 @@
                 this.setAutoplay();
             },
             currentIndex (val, oldVal) {
-                this.$emit('on-change', oldVal, val);
-                this.updateOffset();
+                this.propCurrentIndex = val;
             },
             height () {
                 this.updatePos();
+            },
+            propCurrentIndex () {
+                // this.$emit('on-change', oldVal, val);
+                this.updateOffset();
+                // @todo
             }
         },
         mounted () {

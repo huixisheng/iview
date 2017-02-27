@@ -110,12 +110,13 @@
                 currentX: 0,
                 startPos: 0,
                 newPos: null,
-                oldSingleValue: this.value,
-                oldFirstValue: this.value[0],
-                oldSecondValue: this.value[1],
-                singlePosition: (this.value - this.min) / (this.max - this.min) * 100,
-                firstPosition: (this.value[0] - this.min) / (this.max - this.min) * 100,
-                secondPosition: (this.value[1] - this.min) / (this.max - this.min) * 100
+                propValue: 0,
+                oldSingleValue: this.propValue,
+                oldFirstValue: -1,
+                oldSecondValue: -1,
+                singlePosition: (this.propValue - this.min) / (this.max - this.min) * 100,
+                firstPosition: -1,
+                secondPosition: -1
             };
         },
         computed: {
@@ -158,12 +159,12 @@
 
                 if (this.range) {
                     style = {
-                        width: (this.value[1] - this.value[0]) / (this.max - this.min) * 100 + '%',
-                        left: (this.value[0] - this.min) / (this.max - this.min) * 100 + '%'
+                        width: (this.propValue[1] - this.propValue[0]) / (this.max - this.min) * 100 + '%',
+                        left: (this.propValue[0] - this.min) / (this.max - this.min) * 100 + '%'
                     };
                 } else {
                     style = {
-                        width: (this.value - this.min) / (this.max - this.min) * 100 + '%'
+                        width: (this.propValue - this.min) / (this.max - this.min) * 100 + '%'
                     };
                 }
 
@@ -182,19 +183,32 @@
                 return parseInt(getStyle(this.$refs.slider, 'width'), 10);
             },
             tipDisabled () {
-                return this.tipFormat(this.value[0]) === null || this.showTip === 'never';
+                return this.tipFormat(this.propValue[0]) === null || this.showTip === 'never';
+            }
+        },
+        created () {
+            this.propValue = this.value;
+            if(Array.isArray(this.propValue)) {
+                this.oldFirstValue = this.propValue[0],
+                this.oldSecondValue = this.propValue[1],
+                this.firstPosition = (this.propValue[0] - this.min) / (this.max - this.min) * 100,
+                this.secondPosition = (this.propValue[1] - this.min) / (this.max - this.min) * 100
             }
         },
         watch: {
             value (val) {
+                this.propValue = val;
+
+            },
+            propValue () {
                 this.$nextTick(() => {
                     this.$refs.tooltip.updatePopper();
                     if (this.range) {
                         this.$refs.tooltip2.updatePopper();
                     }
                 });
-                this.updateValue(val);
-                this.$emit('on-input', this.value);
+                this.updateValue(this.propValue);
+                this.$emit('on-input', this.propValue);
             }
         },
         methods: {
@@ -222,19 +236,19 @@
                     if (value[1] > this.max) {
                         value[1] = this.max;
                     }
-                    if (this.value[0] === value[0] && this.value[1] === value[1]) return;
+                    if (this.propValue[0] === value[0] && this.propValue[1] === value[1]) return;
 
-                    this.value = value;
-                    this.setFirstPosition(this.value[0]);
-                    this.setSecondPosition(this.value[1]);
+                    this.propValue = value;
+                    this.setFirstPosition(this.propValue[0]);
+                    this.setSecondPosition(this.propValue[1]);
                 } else {
                     if (val < this.min) {
-                        this.value = this.min;
+                        this.propValue = this.min;
                     }
                     if (val > this.max) {
-                        this.value = this.max;
+                        this.propValue = this.max;
                     }
-                    this.setSinglePosition(this.value);
+                    this.setSinglePosition(this.propValue);
                 }
             },
             sliderClick (event) {
@@ -297,13 +311,13 @@
                     const lengthPerStep = 100 / ((this.max - this.min) / this.step);
                     const steps = Math.round(newPos / lengthPerStep);
 
-                    this.value = Math.round(steps * lengthPerStep * (this.max - this.min) * 0.01 + this.min);
-                    this.setSinglePosition(this.value);
+                    this.propValue = Math.round(steps * lengthPerStep * (this.max - this.min) * 0.01 + this.min);
+                    this.setSinglePosition(this.propValue);
                     if (!this.dragging) {
-                        if (this.value !== this.oldSingleValue) {
-                            this.$emit('on-change', this.value);
-                            this.$dispatch('on-form-change', this.value);
-                            this.oldSingleValue = this.value;
+                        if (this.propValue !== this.oldSingleValue) {
+                            this.$emit('on-change', this.propValue);
+                            this.$emit('on-form-change', this.propValue);
+                            this.oldSingleValue = this.propValue;
                         }
                     }
                 }
@@ -312,10 +326,10 @@
                 this.singlePosition = (val - this.min) / (this.max - this.min) * 100;
             },
             handleInputChange (val) {
-                this.value = val;
+                this.propValue = val;
                 this.setSinglePosition(val);
-                this.$emit('on-change', this.value);
-                this.$dispatch('on-form-change', this.value);
+                this.$emit('on-change', this.propValue);
+                this.$emit('on-form-change', this.propValue);
             },
             // for range use first
             onFirstButtonDown (event) {
@@ -353,13 +367,13 @@
                     const lengthPerStep = 100 / ((this.max - this.min) / this.step);
                     const steps = Math.round(newPos / lengthPerStep);
 
-                    this.value = [Math.round(steps * lengthPerStep * (this.max - this.min) * 0.01 + this.min), this.value[1]];
-                    this.setFirstPosition(this.value[0]);
+                    this.propValue = [Math.round(steps * lengthPerStep * (this.max - this.min) * 0.01 + this.min), this.propValue[1]];
+                    this.setFirstPosition(this.propValue[0]);
                     if (!this.firstDragging) {
-                        if (this.value[0] !== this.oldFirstValue) {
-                            this.$emit('on-change', this.value);
-                            this.$dispatch('on-form-change', this.value);
-                            this.oldFirstValue = this.value[0];
+                        if (this.propValue[0] !== this.oldFirstValue) {
+                            this.$emit('on-change', this.propValue);
+                            this.$emit('on-form-change', this.propValue);
+                            this.oldFirstValue = this.propValue[0];
                         }
                     }
                 }
@@ -403,13 +417,13 @@
                     const lengthPerStep = 100 / ((this.max - this.min) / this.step);
                     const steps = Math.round(newPos / lengthPerStep);
 
-                    this.value = [this.value[0], Math.round(steps * lengthPerStep * (this.max - this.min) * 0.01 + this.min)];
-                    this.setSecondPosition(this.value[1]);
+                    this.propValue = [this.propValue[0], Math.round(steps * lengthPerStep * (this.max - this.min) * 0.01 + this.min)];
+                    this.setSecondPosition(this.propValue[1]);
                     if (!this.secondDragging) {
-                        if (this.value[1] !== this.oldSecondValue) {
-                            this.$emit('on-change', this.value);
-                            this.$dispatch('on-form-change', this.value);
-                            this.oldSecondValue = this.value[1];
+                        if (this.propValue[1] !== this.oldSecondValue) {
+                            this.$emit('on-change', this.propValue);
+                            this.$emit('on-form-change', this.propValue);
+                            this.oldSecondValue = this.propValue[1];
                         }
                     }
                 }
@@ -420,17 +434,17 @@
         },
         mounted () {
             if (this.range) {
-                const isArray = Array.isArray(this.value);
-                if (!isArray || (isArray && this.value.length != 2) || (isArray && (isNaN(this.value[0]) || isNaN(this.value[1])))) {
-                    this.value = [this.min, this.max];
+                const isArray = Array.isArray(this.propValue);
+                if (!isArray || (isArray && this.propValue.length != 2) || (isArray && (isNaN(this.propValue[0]) || isNaN(this.propValue[1])))) {
+                    this.propValue = [this.min, this.max];
                 } else {
-                    this.updateValue(this.value, true);
+                    this.updateValue(this.propValue, true);
                 }
             } else {
-                if (typeof this.value !== 'number') {
-                    this.value = this.min;
+                if (typeof this.propValue !== 'number') {
+                    this.propValue = this.min;
                 }
-                this.updateValue(this.value);
+                this.updateValue(this.propValue);
             }
         }
     };

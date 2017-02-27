@@ -7,57 +7,57 @@
         </i-col>
         <i-col span="2">
             <p>Autoplay</p>
-            <Switch :checked.sync="autoplay" size="small"></Switch>
+            <i-switch :checked="autoplay" size="small"></i-switch>
         </i-col>
         <i-col span="4">
-            Speed <Slider :value.sync="autoplaySpeed" :min="300" :max="5000"></Slider>
+            Speed <Slider :value="autoplaySpeed" :min="300" :max="5000"></Slider>
         </i-col>
         <i-col span="4">
             Switch To
             <Button-group>
-                <i-button @click="currentIndex = 0">0</i-button>
-                <i-button @click="currentIndex = 1">1</i-button>
-                <i-button @click="currentIndex = 2">2</i-button>
+                <i-button @click.native="currentIndex = 0">0</i-button>
+                <i-button @click.native="currentIndex = 1">1</i-button>
+                <i-button @click.native="currentIndex = 2">2</i-button>
             </Button-group>
         </i-col>
         <i-col span="4">
-            <i-button @click="push">Push</i-button>
-            <i-button @click="remove = true">Remove Front</i-button>
+            <i-button @click.native="push">Push</i-button>
+            <i-button @click.native="remove = true">Remove Front</i-button>
         </i-col>
     </Row>
     <Row>
         <i-col span="4">
             <p>Dots</p>
             <Button-group>
-                <i-button @click="dots = 'inside'">Inside</i-button>
-                <i-button @click="dots = 'outside'">Outside</i-button>
-                <i-button @click="dots = 'none'">None</i-button>
+                <i-button @click.native="dots = 'inside'">Inside</i-button>
+                <i-button @click.native="dots = 'outside'">Outside</i-button>
+                <i-button @click.native="dots = 'none'">None</i-button>
             </Button-group>
         </i-col>
         <i-col span="4">
             <p>Trigger</p>
             <Button-group>
-                <i-button @click="trigger = 'click'">Click</i-button>
-                <i-button @click="trigger = 'hover'">Hover</i-button>
+                <i-button @click.native="trigger = 'click'">Click</i-button>
+                <i-button @click.native="trigger = 'hover'">Hover</i-button>
             </Button-group>
         </i-col>
         <i-col span="4">
             Arrow
             <Button-group>
-                <i-button @click="arrow = 'hover'">Hover</i-button>
-                <i-button @click="arrow = 'always'">Always</i-button>
-                <i-button @click="arrow = 'never'">Never</i-button>
+                <i-button @click.native="arrow = 'hover'">Hover</i-button>
+                <i-button @click.native="arrow = 'always'">Always</i-button>
+                <i-button @click.native="arrow = 'never'">Never</i-button>
             </Button-group>
         </i-col>
         <i-col span="4">
             Height
-            <i-button @click="height = 'auto'">Auto</i-button>
-            <i-button @click="height = 80">Manual</i-button>
-            <Slider v-if="height !== 'auto'" :value.sync="height" :min="50" :max="200"></Slider>
+            <i-button @click.native="height = 'auto'">Auto</i-button>
+            <i-button @click.native="height = 80">Manual</i-button>
+            <Slider v-if="height !== 'auto'" :value="height" :min="50" :max="200"></Slider>
         </i-col>
     </Row>
     <Carousel style="width: 50%; border: solid 1px #000; margin-top: 20px;"
-        :current-index.sync="currentIndex"
+        :current-index="currentIndex"
         :autoplay="autoplay"
         :autoplay-speed="autoplaySpeed"
         :dots="dots"
@@ -107,10 +107,11 @@
             <Icon type="checkmark" style="font-size: 5em"></Icon>{{item}}
         </Carousel-item>
     </Carousel>
-    <div style="max-height: 200px; overflow: scroll">
+    <div style="max-height: 200px; overflow-y: scroll">
         <p v-for="item in log" track-by="$index">{{item}}</p>
     </div>
 
+    <div class="bar-placeholder"></div>
     <Card style="width:350px">
         <p slot="title">
             <Icon type="ios-film-outline"></Icon>
@@ -135,6 +136,8 @@
             </Carousel-item>
         </Carousel>
     </Card>
+    <div class="bar-placeholder"></div>
+
     <Tabs>
         <Tab-pane label="标签一">
             <Carousel>
@@ -180,6 +183,9 @@
     </Tabs>
 </div>
 </template>
+<style>
+.bar-placeholder{ height: 40px; }
+</style>
 <script>
     export default {
         data () {
