@@ -57,6 +57,7 @@
                 });
             },
             validate(callback) {
+                // debugger;
                 let valid = true;
                 let count = 0;
                 this.fields.forEach(field => {
@@ -82,15 +83,25 @@
                 this.validate();
             }
         },
-        events: {
-            'on-form-item-add' (field) {
+        created () {
+            this.$on('on-form-item-add', function (field) {
                 if (field) this.fields.push(field);
                 return false;
-            },
-            'on-form-item-remove' (field) {
+            });
+            this.$on('on-form-item-remove', function (field) {
                 if (field.prop) this.fields.splice(this.fields.indexOf(field), 1);
                 return false;
-            }
+            });
         }
+        // events: {
+        //     'on-form-item-add' (field) {
+        //         if (field) this.fields.push(field);
+        //         return false;
+        //     },
+        //     'on-form-item-remove' (field) {
+        //         if (field.prop) this.fields.splice(this.fields.indexOf(field), 1);
+        //         return false;
+        //     }
+        // }
     };
 </script>

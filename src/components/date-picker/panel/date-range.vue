@@ -42,7 +42,7 @@
                     @on-pick="handleRangePick"
                     @on-pick-click="handlePickClick"></date-table>
                 <year-table
-                    ref="left"-year-table
+                    ref="left-year-table"
                     v-show="leftCurrentView === 'year'"
                     :year="leftTableYear"
                     :date="leftTableDate"
@@ -51,7 +51,7 @@
                     @on-pick="handleLeftYearPick"
                     @on-pick-click="handlePickClick"></year-table>
                 <month-table
-                    ref="left"-month-table
+                    ref="left-month-table"
                     v-show="leftCurrentView === 'month'"
                     :month="leftMonth"
                     :date="leftTableDate"
@@ -95,7 +95,7 @@
                     @on-pick="handleRangePick"
                     @on-pick-click="handlePickClick"></date-table>
                 <year-table
-                    ref="right"-year-table
+                    ref="right-year-table"
                     v-show="rightCurrentView === 'year'"
                     :year="rightTableYear"
                     :date="rightTableDate"
@@ -104,7 +104,7 @@
                     @on-pick="handleRightYearPick"
                     @on-pick-click="handlePickClick"></year-table>
                 <month-table
-                    ref="right"-month-table
+                    ref="right-month-table"
                     v-show="rightCurrentView === 'month'"
                     :month="rightMonth"
                     :date="rightTableDate"

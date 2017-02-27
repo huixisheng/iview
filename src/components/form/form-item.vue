@@ -206,10 +206,12 @@
                 this.validate('change');
             }
         },
-        mounted () {
+        created () {
             if (this.prop) {
                 // @todo
                 // this.$dispatch('on-form-item-add', this);
+                // console.log(this.$parent);
+                this.$parent.$emit('on-form-item-add', this);
 
                 Object.defineProperty(this, 'initialValue', {
                     value: this.fieldValue
@@ -231,7 +233,7 @@
         },
         beforeDestroy () {
             // @todo
-            this.$dispatch('on-form-item-remove', this);
+            this.$parent.$emit('on-form-item-remove', this);
         }
     };
 </script>

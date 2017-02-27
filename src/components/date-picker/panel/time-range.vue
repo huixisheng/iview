@@ -25,7 +25,7 @@
                     <template v-else>{{ t('i.datepicker.endTime') }}</template>
                 </div>
                 <time-spinner
-                    ref="timeSpinner"-end
+                    ref="timeSpinner-end"
                     :show-seconds="showSeconds"
                     :hours="hoursEnd"
                     :minutes="minutesEnd"

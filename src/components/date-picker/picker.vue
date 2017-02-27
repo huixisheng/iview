@@ -362,7 +362,7 @@
             handleClear () {
                 this.visible = false;
                 this.internalValue = '';
-                this.value = '';
+                this.internalValue = '';
                 this.$emit('on-clear');
                 //this.$dispatch('on-form-change', '');
                 this.$emit('on-form-change', '');
@@ -394,7 +394,7 @@
 
                     this.picker.$on('on-pick', (date, visible = false) => {
                         if (!this.confirm) this.visible = visible;
-                        this.value = date;
+                        this.internalValue = date;
                         this.picker.value = date;
                         this.picker.resetView && this.picker.resetView();
                         this.emitChange(date);
@@ -470,6 +470,9 @@
 
                     this.internalValue = val;
                 }
+            },
+            internalValue () {
+                // @todo
             },
             open (val) {
                 if (val === true) {
