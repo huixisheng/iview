@@ -25,7 +25,7 @@
         name: 'Submenu',
         components: { Icon, Drop },
         props: {
-            key: {
+            ikey: {
                 type: [String, Number],
                 required: true
             },
@@ -73,7 +73,7 @@
 
                 clearTimeout(this.timeout);
                 this.timeout = setTimeout(() => {
-                    this.$parent.updateOpenKeys(this.key);
+                    this.$parent.updateOpenKeys(this.ikey);
                     this.opened = true;
                 }, 250);
             },
@@ -83,7 +83,7 @@
 
                 clearTimeout(this.timeout);
                 this.timeout = setTimeout(() => {
-                    this.$parent.updateOpenKeys(this.key);
+                    this.$parent.updateOpenKeys(this.ikey);
                     this.opened = false;
                 }, 150);
             },
@@ -97,7 +97,7 @@
                     });
                 }
                 this.opened = !opened;
-                this.$parent.updateOpenKeys(this.key);
+                this.$parent.updateOpenKeys(this.ikey);
             }
         },
         watch: {
@@ -117,11 +117,17 @@
                 }
             }
         },
-        events: {
-            'on-menu-item-select' () {
+        mounted () {
+            this.$on('on-menu-item-select', function () {
                 if (this.mode === 'horizontal') this.opened = false;
-                return true;
-            }
+                // return true;
+            });
+        },
+        events: {
+            // 'on-menu-item-select' () {
+            //     if (this.mode === 'horizontal') this.opened = false;
+            //     return true;
+            // }
         }
     };
 </script>

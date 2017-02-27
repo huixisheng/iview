@@ -38,6 +38,11 @@
                 default: '240px'
             }
         },
+        data () {
+            return {
+                propActiveKey : ''
+            }
+        },
         computed: {
             classes () {
                 let theme = this.theme;
@@ -62,37 +67,41 @@
         methods: {
             updateActiveKey () {
                 this.$children.forEach((item, index) => {
-                    if (!this.activeKey && index === 0) {
-                        this.activeKey = -1;
+                    if (!this.propActiveKey && index === 0) {
+                        this.propActiveKey = -1;
                     }
-
                     if (item.$options.name === 'Submenu') {
                         item.active = false;
                         item.$children.forEach(subitem => {
-                            if (subitem.$options.name === 'MenuGroup') {
-                                subitem.$children.forEach(groupItem => {
-                                    if (groupItem.key === this.activeKey) {
-                                        groupItem.active = true;
-                                        groupItem.$parent.$parent.active = true;
-                                    } else {
-                                        groupItem.active = false;
+                            // @todo vue2.0 MenuGroup 属于 Drop
+                            if (subitem.$options.name === 'Drop') {
+                                subitem.$children.forEach(son => {
+                                    if (son.$options.name === 'MenuGroup') {
+                                        son.$children.forEach(groupItem => {
+                                            if (groupItem.ikey === this.propActiveKey) {
+                                                groupItem.active = true;
+                                                groupItem.$parent.$parent.$parent.active = true;
+                                            } else {
+                                                groupItem.active = false;
+                                            }
+                                        });
+                                    } else if (son.$options.name === 'MenuItem') {
+                                        if (son.ikey === this.propActiveKey) {
+                                            son.active = true;
+                                            son.$parent.$parent.active = true;
+                                        } else {
+                                            son.active = false;
+                                        }
                                     }
                                 });
-                            } else if (subitem.$options.name === 'MenuItem') {
-                                if (subitem.key === this.activeKey) {
-                                    subitem.active = true;
-                                    subitem.$parent.active = true;
-                                } else {
-                                    subitem.active = false;
-                                }
                             }
                         });
                     } else if (item.$options.name === 'MenuGroup') {
                         item.$children.forEach(groupItem => {
-                            groupItem.active = groupItem.key === this.activeKey;
+                            groupItem.active = groupItem.ikey === this.propActiveKey;
                         });
                     } else if (item.$options.name === 'MenuItem') {
-                        item.active = item.key === this.activeKey;
+                        item.active = item.ikey === this.propActiveKey;
                     }
                 });
             },
@@ -107,26 +116,37 @@
             updateOpened () {
                 this.$children.forEach(item => {
                     if (item.$options.name === 'Submenu') {
-                        if (this.openKeys.indexOf(item.key) > -1) item.opened = true;
+                        if (this.openKeys.indexOf(item.ikey) > -1) item.opened = true;
                     }
                 });
             }
         },
+        created () {
+            this.propActiveKey = this.activeKey;
+        },
         mounted () {
             this.updateActiveKey();
             this.updateOpened();
-        },
-        events: {
-            'on-menu-item-select' (key) {
-                this.activeKey = key;
+            this.$on('on-menu-item-select', function (key) {
+                this.propActiveKey = key;
                 this.$emit('on-select', key);
-            }
+            });
         },
+        // events: {
+        //     'on-menu-item-select' (key) {
+        //         this.propActiveKey = key;
+        //         this.$emit('on-select', key);
+        //     }
+        // },
         watch: {
             openKeys () {
                 this.$emit('on-open-change', this.openKeys);
             },
-            activeKey () {
+            activeKey (val) {
+                this.propActiveKey = val;
+                // this.updateActiveKey();
+            },
+            propActiveKey () {
                 this.updateActiveKey();
             }
         }

@@ -7,7 +7,7 @@
     export default {
         name: 'MenuItem',
         props: {
-            key: {
+            ikey: {
                 type: [String, Number],
                 required: true
             },
@@ -18,7 +18,8 @@
         },
         data () {
             return {
-                active: false
+                active: false,
+                // key: ''
             };
         },
         computed: {
@@ -36,8 +37,13 @@
         methods: {
             handleClick () {
                 if (this.disabled) return;
-                // @todo
-                this.$dispatch('on-menu-item-select', this.key);
+                let parent = this.$parent;
+                while (parent) {
+                    parent.$emit('on-menu-item-select', this.ikey);
+                    parent = parent.$parent;
+                }
+                // @todo $dispatch
+                // this.$parent.$emit('on-menu-item-select', this.ikey);
             }
         }
     };
