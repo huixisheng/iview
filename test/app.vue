@@ -1,20 +1,10 @@
-<style lang="less">
+// <style lang="less">
     @import "../src/styles/index.less";
 </style>
 <style scoped>
-nav {
-    margin-bottom: 40px;
-}
-
-li {
-    display: inline-block;
-}
-
-li + li {
-    border-left: solid 1px #bbb;
-    padding-left: 5px;
-    margin-left: 5px;
-}
+nav { margin-bottom: 40px; }
+ul { display: flex; flex-wrap: wrap; }
+li { width: 80px; margin-bottom: 10px; }
 .container{ padding: 10px 40px; }
 .v-link-active {
     color: #bbb;
