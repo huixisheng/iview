@@ -8,7 +8,7 @@
             <span :class="[prefixCls + '-star-content']" type="half"></span>
         </div>
         <div :class="[prefixCls + '-text']" v-if="showText" v-show="value > 0">
-            <slot>{{ value }} <template v-if="value <= 1">{{ t('i.rate.star') }}</template><template v-else>{{ t('i.rate.stars') }}</template></slot>
+            <slot>{{ propValue }} <template v-if="propValue <= 1">{{ t('i.rate.star') }}</template><template v-else>{{ t('i.rate.stars') }}</template></slot>
         </div>
     </div>
 </template>
@@ -46,7 +46,8 @@
                 prefixCls: prefixCls,
                 hoverIndex: -1,
                 isHover: false,
-                isHalf: false
+                isHalf: false,
+                propValue: 0
             };
         },
         computed: {
@@ -59,8 +60,20 @@
                 ];
             }
         },
+        created () {
+            this.propValue = this.value;
+        },
         watch: {
-            value: {
+            // value: {
+            //     immediate: true,
+            //     handler (val) {
+            //         this.setHalf(val);
+            //     }
+            // },
+            value (val) {
+                this.propValue = val;
+            },
+            propValue: {
                 immediate: true,
                 handler (val) {
                     this.setHalf(val);
@@ -70,7 +83,7 @@
         methods: {
             starCls (value) {
                 const hoverIndex = this.hoverIndex;
-                const currentIndex = this.isHover ? hoverIndex : this.value;
+                const currentIndex = this.isHover ? hoverIndex : this.propValue;
 
                 let full = false;
                 let isLast = false;
@@ -80,7 +93,7 @@
                 if (this.isHover) {
                     isLast = currentIndex === value + 1;
                 } else {
-                    isLast = Math.ceil(this.value) === value + 1;
+                    isLast = Math.ceil(this.propValue) === value + 1;
                 }
 
                 return [
@@ -108,7 +121,7 @@
                 if (this.disabled) return;
 
                 this.isHover = false;
-                this.setHalf(this.value);
+                this.setHalf(this.propValue);
                 this.hoverIndex = -1;
             },
             setHalf (val) {
@@ -118,9 +131,9 @@
                 if (this.disabled) return;
                 value++;
                 if (this.isHalf) value -= 0.5;
-                this.value = value;
+                this.propValue = value;
                 this.$emit('on-change', value);
-                this.$dispatch('on-form-change', value);
+                this.$emit('on-form-change', value);
             }
         }
     };

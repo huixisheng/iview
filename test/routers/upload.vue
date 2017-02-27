@@ -12,8 +12,7 @@
             <i-progress v-if="item.showProgress" :percent="item.percentage" hide-info></i-progress>
         </template>
     </div>
-    <Upload
-            v-ref:upload
+    <Upload ref="upload"
             :show-upload-list="false"
             :default-file-list="defaultList"
             :on-success="handleSuccess"
@@ -30,7 +29,7 @@
             <Icon type="camera" size="20"></Icon>
         </div>
     </Upload>
-    <Modal title="查看图片" :visible.sync="visible">
+    <Modal title="查看图片" :visible="visible">
         <img :src="'https://o5wwk8baw.qnssl.com/' + imgName + '/large'" v-if="visible" style="width: 100%">
     </Modal>
 </div>
@@ -50,13 +49,20 @@
                     }
                 ],
                 imgName: '',
-                visible: false
+                visible: false,
+                uploadList: []
             }
         },
         computed: {
-            uploadList () {
-                return this.$refs.upload ? this.$refs.upload.fileList : [];
-            }
+            // @todo upload.fileList 是否要触发uploadList？
+            // uploadList () {
+            //     return this.$refs.upload ? this.$refs.upload.fileList : [];
+            // }
+        },
+        mounted () {
+            this.uploadList = this.$refs.upload ? this.$refs.upload.fileList : [];
+            // console.log(this.$refs.upload);
+            // console.log(this.$refs.upload.fileList);
         },
         methods: {
             handleView (name) {
