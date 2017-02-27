@@ -9,14 +9,14 @@
                     <div :class="cellClasses(column)">
                         <template v-if="column.type === 'selection'"><Checkbox :checked="isSelectAll" @on-change="selectAll"></Checkbox></template>
                         <template v-else>
-                            <div v-html="renderHeader(column, index)"></div>
+                            <span v-html="renderHeader(column, index)"></span>
                             <span :class="[prefixCls + '-sort']" v-if="column.sortable">
                                 <i class="ivu-icon ivu-icon-arrow-up-b" :class="{on: column._sortType === 'asc'}" @click="handleSort(index, 'asc')"></i>
                                 <i class="ivu-icon ivu-icon-arrow-down-b" :class="{on: column._sortType === 'desc'}" @click="handleSort(index, 'desc')"></i>
                             </span>
                             <Poptip
                                 v-if="isPopperShow(column)"
-                                :visible.sync="column._filterVisible"
+                                :visible="column._filterVisible"
                                 placement="bottom"
                                 @on-popper-hide="handleFilterHide(index)">
                                 <span :class="[prefixCls + '-filter']">
@@ -24,7 +24,7 @@
                                 </span>
                                 <div slot="content" :class="[prefixCls + '-filter-list']" v-if="column._filterMultiple">
                                     <div :class="[prefixCls + '-filter-list-item']">
-                                        <checkbox-group :model.sync="column._filterChecked">
+                                        <checkbox-group :model="column._filterChecked">
                                             <checkbox v-for="item in column.filters" :value="item.value">{{ item.label }}</checkbox>
                                         </checkbox-group>
                                     </div>
@@ -74,6 +74,9 @@
                 type: [Boolean, String],
                 default: false
             }
+        },
+        mounted () {
+            console.log('table-head %o', this.columns);
         },
         computed: {
             styles () {

@@ -43,7 +43,7 @@
                         :style="fixedTableStyle"
                         :columns="leftFixedColumns"
                         :obj-data="objData"
-                        :columns-width.sync="columnsWidth"
+                        :columns-width="columnsWidth"
                         :data="rebuildData"></table-head>
                 </div>
                 <div :class="[prefixCls + '-fixed-body']" :style="fixedBodyStyle" ref="fixedBody">
@@ -65,7 +65,7 @@
                         :style="fixedRightTableStyle"
                         :columns="rightFixedColumns"
                         :obj-data="objData"
-                        :columns-width.sync="columnsWidth"
+                        :columns-width="columnsWidth"
                         :data="rebuildData"></table-head>
                 </div>
                 <div :class="[prefixCls + '-fixed-body']" :style="fixedBodyStyle" ref="fixedRightBody">
@@ -631,13 +631,14 @@
             this.showSlotHeader = this.$refs.title.innerHTML.replace(/\n/g, '').replace(/<!--[\w\W\r\n]*?-->/gmi, '') !== '';
             this.showSlotFooter = this.$refs.footer.innerHTML.replace(/\n/g, '').replace(/<!--[\w\W\r\n]*?-->/gmi, '') !== '';
             this.rebuildData = this.makeDataWithSortAndFilter();
-        },
-        mounted () {
             this.handleResize();
             this.fixedHeader();
             this.$nextTick(() => this.ready = true);
             window.addEventListener('resize', this.handleResize, false);
         },
+        // mounted () {
+
+        // },
         beforeDestroy () {
             window.removeEventListener('resize', this.handleResize, false);
         },

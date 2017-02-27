@@ -16,7 +16,8 @@
                         title: '姓名',
                         key: 'name',
                         render (row, column, index) {
-                            return `<Icon type="person"></Icon> <strong>${row.name}</strong>`;
+                            var html = `<div><Icon type="person"></Icon> <strong>${row.name}</strong></div>`;
+                            return `<div><Icon type="person"></Icon> <strong>${row.name}</strong></div>`;
                         }
                     },
                     {
@@ -41,10 +42,10 @@
                         width: 150,
                         align: 'center',
                         render (row, column, index) {
-//                            return `<i-button type="primary" size="small" @click="show(${index})">查看</i-button> <i-button type="error" size="small" @click="remove(${index})">删除</i-button>`;
-                            return `<Poptip width="250" confirm placement="left" title="您确认删除吗？" @on-ok="deleteProject(${index})">
-                <i-button size="small" type="error">删除</i-button>
-              </Poptip>`
+                           // return `<i-button type="primary" size="small" @click="show(${index})">查看</i-button> <i-button type="error" size="small" @click="remove(${index})">删除</i-button>`;
+                            return `<Poptip width="250" confirm placement="left" title="您确认删除吗？" v-on:on-ok="remove(${index})">
+                                <i-button size="small" type="error">删除</i-button>
+                                </Poptip>`
                         }
                     }
                 ],

@@ -22,8 +22,8 @@
                             <div :class="[prefixCls + '-body-message']"><slot name="title">{{ title }}</slot></div>
                         </div>
                         <div :class="[prefixCls + '-footer']">
-                            <i-button type="text" size="small" @click="cancel">{{ cancelText }}</i-button>
-                            <i-button type="primary" size="small" @click="ok">{{ okText }}</i-button>
+                            <i-button type="text" size="small" @click.native="cancel">{{ cancelText }}</i-button>
+                            <i-button type="primary" size="small" @click.native="ok">{{ okText }}</i-button>
                         </div>
                     </div>
                     <div :class="[prefixCls + '-inner']" v-if="!confirm">

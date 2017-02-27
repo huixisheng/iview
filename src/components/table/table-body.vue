@@ -44,6 +44,12 @@
                 default: false
             }
         },
+        mounted () {
+            // console.log("table-body-start");
+            // console.log(this.data);
+            // console.log(this.columns);
+            // console.log("table-body-end");
+        },
         methods: {
             rowClasses (_index) {
                 return [

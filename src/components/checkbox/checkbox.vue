@@ -47,7 +47,7 @@
                 model: [],
                 selected: false,
                 group: false,
-                showSlot: true,
+                showSlot: false,
                 propChecked: false
             };
         },
