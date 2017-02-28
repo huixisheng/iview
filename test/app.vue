@@ -1,4 +1,4 @@
-// <style lang="less">
+<style lang="less">
     @import "../src/styles/index.less";
 </style>
 <style scoped>
@@ -6,9 +6,7 @@ nav { margin-bottom: 40px; }
 ul { display: flex; flex-wrap: wrap; }
 li { width: 80px; margin-bottom: 10px; }
 .container{ padding: 10px 40px; }
-.v-link-active {
-    color: #bbb;
-}
+.v-link-active { color: #bbb; }
 </style>
 <template>
     <div class="container">
@@ -42,11 +40,11 @@ li { width: 80px; margin-bottom: 10px; }
                 <li><router-link to="/upload">Upload</router-link></li>
                 <li><router-link to="/tree">Tree</router-link></li>
                 <li><router-link to="/notice">Notice</router-link></li>
-                <li><router-link to="/other">other</router-link></li>
-                <li><router-link to="/breadcrumb">breadcrumb</router-link></li>
-                <li><router-link to="/badge">badge</router-link></li>
-                <li><router-link to="/timeline">timeline</router-link></li>
-                <li><router-link to="/timepicker">timepicker</router-link></li>
+                <li><router-link to="/other">Other</router-link></li>
+                <li><router-link to="/breadcrumb">Breadcrumb</router-link></li>
+                <li><router-link to="/badge">Badge</router-link></li>
+                <li><router-link to="/timeline">Timeline</router-link></li>
+                <li><router-link to="/timepicker">Timepicker</router-link></li>
             </ul>
         </nav>
         <div>

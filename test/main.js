@@ -17,12 +17,13 @@ Vue.config.debug = true;
 // 路由配置
 var router = new VueRouter({
   // history: true,
+  // https://cn.vuejs.org/v2/guide/migration-vue-router.html#router-map-替换
   routes: [{
       path: '/button',
-      component: require('./routers/button.vue')
-      // component: function (resolve) {
-      //     require(['./routers/button.vue'], resolve);
-      // }
+      name: 'button',
+      component: function (resolve) {
+          require(['./routers/button.vue'], resolve);
+      }
     }, {
       path: '/card',
       component: function (resolve) {
@@ -30,10 +31,9 @@ var router = new VueRouter({
       }
     }, {
       path: '/message',
-      component: require('./routers/message.vue')
-      // component: function (resolve) {
-      //   require(['./routers/message.vue'], resolve);
-      // }
+      component: function (resolve) {
+        require(['./routers/message.vue'], resolve);
+      }
     },{
       path: '/more',
       component: function (resolve) {
@@ -184,27 +184,17 @@ var router = new VueRouter({
       component: function (resolve) {
           require(['./routers/timepicker.vue'], resolve);
       }
+    },{
+      path: '*',
+      redirect: '/button'
     }]
 });
-// https://cn.vuejs.org/v2/guide/migration-vue-router.html#router-map-替换
-
 
 // router.beforeEach(function () {
 //     window.scrollTo(0, 0);
 // });
-
-// router.afterEach(function (transition) {
-
-// });
-
 new Vue({
   el: '#app',
   router: router,
   render: h => h(App)
-  // template: '<router-view></router-view>'
-})
-
-// router.redirect({
-//     '*': "/button"
-// });
-// router.start(App, '#app');
+});
