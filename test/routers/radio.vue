@@ -145,6 +145,16 @@
     </Breadcrumb>
     <br><br>
     <Checkbox :checked="single"></Checkbox>
+    <h2>以下为测试</h2>
+    <Button @click.native="testButtonClick">测试button</Button>
+    <Switch>
+        <span slot="open">开</span>
+        <span slot="close">关</span>
+    </Switch>
+    <i-switch>
+        <span slot="open">开</span>
+        <span slot="close">关</span>
+    </i-switch>
 </div>
 </template>
 <script>
@@ -154,7 +164,8 @@
     const Panel = Collapse.Panel;
     const CheckboxGroup = Checkbox.Group;
     const BreadcrumbItem = Breadcrumb.Item;
-
+    const Switch = iSwitch;
+    const Button = iButton;
     export default {
         components: {
             Radio,
@@ -164,9 +175,11 @@
             Collapse,
             Panel,
             iButton,
+            Button,
             Checkbox,
             CheckboxGroup,
             iSwitch,
+            Switch,
             InputNumber,
             Breadcrumb,
             BreadcrumbItem,
@@ -204,6 +217,9 @@
             },
             change (status) {
                 console.log(status);
+            },
+            testButtonClick () {
+                console.log('testButtonClick');
             }
         },
         ready () {
