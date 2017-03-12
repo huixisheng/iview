@@ -270,17 +270,110 @@ new webpack.DefinePlugin({
 
 ### 直接设置`process.env.NODE_ENV = 'production'`
 
-[https://github.com/vuejs-templates/webpack](https://github.com/vuejs-templates/webpack)就是这么实现的
+`npm run build-process.env`
+
+[https://github.com/vuejs-templates/webpack](https://github.com/vuejs-templates/webpack/blob/master/template/build/build.js)就是这么实现的
+
 
 `npm run build` -> `node build/build.js`->`build.js`直接设置了`process.env.NODE_ENV = 'production'`。
 
-### 使用环境变量`cross-env`
+此外还有[cooking](https://github.com/ElemeFE/cooking/blob/671353156818d2016595b2cf303113e04d0986ac/packages/cooking/bin/cooking-build)也是这么实现的。
+
+```
+#!/usr/bin/env node
+'use strict'
+
+// set env
+process.env.NODE_ENV = 'production'
+
+const path = require('path')
+const program = require('commander')
+const logger = require('../util/logger')
+const loadConfig = require('../util/load-config')
+const webpack = require('webpack')
+let configs = []
+let compiler
+```
+
+### 使用环境变量`cross-env` ###
+
+可以运行`npm run build-cross-env`看下效果。生成的`dist/iview-cross-env.js`已经不存在调试代码了。
+
+看到[webpack官方文档-使用环境变量](https://doc.webpack-china.org/guides/environment-variables/) [英文](https://webpack.js.org/guides/environment-variables/)。但是并没有指出是推荐写法。
+
+[vue-hackernews-2.0](https://github.com/vuejs/vue-hackernews-2.0/blob/master/package.json)也是这个写法
+```
+{
+  "name": "vue-hackernews-2.0",
+  "scripts": {
+    "dev": "node server",
+    "start": "cross-env NODE_ENV=production node server",
+    "build": "rimraf dist && npm run build:client && npm run build:server",
+    "build:client": "cross-env NODE_ENV=production webpack --config build/webpack.client.config.js --progress --hide-modules",
+    "build:server": "cross-env NODE_ENV=production webpack --config build/webpack.server.config.js --progress --hide-modules"
+  }
+}
+```
+
+### webpack -p ###
+`webpack -p` 没添加调试代码。但是`--define process.env.NODE_ENV="'production'"`都是添加了调试代码。好奇怪。难道是文档出了问题？@todo
+
+相当于`webpack --optimize-minimize --define process.env.NODE_ENV="'production'"`
+
+没有设置`webpack.optimize.UglifyJsPlugin`已经默认压缩了代码。
+
+```
+webpack --define process.env.NODE_ENV='production' --config build/webpack-define.js --progress --profile --colors
+或者
+webpack --define process.env.NODE_ENV=\"'production'\" --config build/webpack-define.js --progress --profile --colors
+或者
+webpack --define process.env.NODE_ENV=production --config build/webpack-define.js --progress --profile --colors
+```
+
+添加
+```
+new webpack.DefinePlugin({
+  'process.env.NODE_ENV': '"production"'
+}),
+// 或者下面写法
+new webpack.DefinePlugin({
+  'process.env.NODE_ENV': JSON.stringify('production')
+ })
+```
+都是存在`Component.options.__file = "/Users/huixisheng/Workspaces/iview/src/components/icon/icon.vue"`
 
 
+### NODE_ENV=production  ###
 
+`NODE_ENV=production webpack --config build/webpack.NODE_ENV=production.js` Mac下是不会添加调试的代码的。但是win不兼容。
 
+[@JiaxiangZheng](https://cnodejs.org/user/JiaxiangZheng)
+>export NODE_ENV=production && node xxx.js  这样在当前命令行下后续的命令中读取 NODE_ENV，都会得到  production 值；
+如果直接使用 NODE_ENV=production node xxx.js，则 NODE_ENV 的有效性仅限当前命令，不会对后续命令有影响。
+
+win设置`process.env.NODE_ENV`
+[@kelvv](https://cnodejs.org/user/kelvv)
+```
+“dev-mac”: " export NODE_ENV=development&& nodemon --harmony --use_strict index.js  -w ",
+“dev-win”: " set NODE_ENV=development&& nodemon --harmony --use_strict index.js  -w ",
+```
+
+### 使用 `minimize`
+
+`npm run build-minimize`
+
+```
+plugins: [
+    new webpack.LoaderOptionsPlugin({
+        minimize: true,
+        debug: false
+    })
+]
+```
+这样也是不会添加调试代码的
 
 相关参考
+
 - https://cnodejs.org/topic/5785b3ef3b501f7054982f69
 - https://github.com/webpack/webpack/issues/2537
 - https://github.com/vuejs/vue-hackernews-2.0/search?utf8=%E2%9C%93&q=NODE_ENV
@@ -296,9 +389,10 @@ new webpack.DefinePlugin({
 
 于是一行行打开`src/index.js`注释的代码，根据报错一个个处理。但是这样处理是不是太慢了，于是下载了[迁移工具](https://github.com/vuejs/vue-migration-helper)根据报错全局替换。嘿嘿，这样是快了很多。然后对引入组件的注释一个个打开，报错单独处理。
 
-大致报错整理如下:
 
-迁移工具报错：
+
+###  处理迁移工具报错 ###
+
 ```
 ➜  iview git:(feature-2.0) ✗ vue-migration-helper src/components/button/button.vue
 
@@ -314,6 +408,7 @@ new webpack.DefinePlugin({
 ...
 ```
 
+### 使用内联value的v-model移除
 
 ```
 <input :type="type" v-model="value">:
@@ -322,46 +417,97 @@ v-model does not support dynamic input types. Use v-if branches instead.
 https://forum.vuejs.org/t/v-model-does-not-support-dynamic-input-types/2180
 https://github.com/vuejs/vue/issues/3915
 
-v-else必要要有v-if
+### v-else必要要有v-if ###
+
 v-else used on element <ul> without corresponding v-if.
 https://cn.vuejs.org/v2/guide/migration.html#v-show后面使用v-else-移除
 
-prop属性不支持吸怪
+### prop属性不支持修改, prop.sync移除 ###
+
 ```
 vendor.bundle.js:3207 [Vue warn]: Avoid mutating a prop directly since the value will be overwritten whenever the parent component re-renders. Instead, use a data or computed property based on the prop's value. Prop being mutated: "model"
 (found in component <iSelect> at iview/src/components/select/select.vue)
 ```
 
-transtions 升级需要修改less
+### transtion修改  ###
+
+发现的问题modal没有触发显示的动画
+
+vue2.x
+```
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0
+}
+```
+
+vue1.x
+```
+/* 必需 */
+.fade-transition {
+  transition: all .3s ease;
+}
+/* .fade-enter 定义进入的开始状态 */
+/* .fade-leave 定义离开的结束状态 */
+.fade-enter, .fade-leave {
+  opacity: 0;
+}
+```
+对比下就知道该怎么修改了。
+
+### 入口vue修改 ###
 
 ERROR LOG: '[Vue warn]: You are using the runtime-only build of Vue where the template option is not available. Either pre-compile the templates into render functions, or use the compiler-included build.
 (found in <Root>)'
 LOG LOG: <!---->
+
+vue打包很多个版本，这里我们需要含有`compiler`的版本
+```
+resolve: {
+    alias: {
+      'vue': 'vue/dist/vue.esm.js'
+    }
+}
+```
+
+## 关键字不能作为自定义属性
+
 vendor.bundle.js:1319 [Vue warn]: "key" is a reserved attribute and cannot be used as component prop.
 vendor.bundle.js:1319 [Vue warn]: Missing required prop: "key"
 
- Do not use built-in or reserved HTML elements as component id: Switch
-this.$dispatch is not a function
 
+### 如何设置默认路由
 
-modal 没有触发显示的动画
+- [How can I set a default route on page load #866](https://github.com/vuejs/vue-router/issues/866)
 
+```
+},{
+  path: '*',
+  redirect: '/button'
+}]
+```
 
------
+### vm.$set变更 ###
+
 Cannot create property 'true' on string 'data[0].isLeaf'
     at VueComponent.set$1 [as $set]
 
-默认路由 https://github.com/vuejs/vue-router/issues/866  How can I set a default route on page load #866
+### 用`v-on`监听原生事件变更
+>现在在组件上使用 v-on 只会监听自定义事件（组件用 $emit 触发的事件）。如果要监听根元素的原生事件，可以使用 .native 修饰符，比如：
+`<Button v-on:click.native="doSomething"></Button>`
 
+### Object.entries
 
+### $dispatch和$broadcast废弃
 
+```
+this.$dispatch is not a function
+```
 
-记录下webpack2 在webpack1 基础上需要修改的内容 2016.09.07
-https://github.com/dingyiming/example-vue2/issues/9
-
-
-
-Object.entries
+Do not use built-in or reserved HTML elements as component id: Switch
+- https://github.com/vuejs/vue/commit/13a14d5a96860e454211351a92104f03dc980255
 
 ## 参考
 - https://developer.mozilla.org/zh-CN/search?q=of
@@ -372,3 +518,4 @@ Object.entries
 - http://www.cnblogs.com/xxcanghai/p/6124699.html
 - http://slides.com/awee/vue2#/
 - http://www.cnblogs.com/xxcanghai/p/6098663.html
+- https://github.com/dingyiming/example-vue2/issues/9

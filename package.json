@@ -19,7 +19,12 @@
     "src"
   ],
   "scripts": {
-    "build-env": "rm -rf dist/ && cross-env NODE_ENV=production webpack --config build/webpack.dist.prod-env.config.js",
+    "build-minimize": "webpack --config build/webpack-minimize.js",
+    "build-NODE_ENV=production": "NODE_ENV=production webpack --config build/webpack.NODE_ENV=production.js",
+    "build-define": "webpack --define process.env.NODE_ENV=\"'production'\" --config build/webpack-define.js --progress --profile --colors",
+    "build-p": "webpack -p --config build/webpack-p.js",
+    "build-process.env": "webpack --config build/webapck.dist.process.env.config.js",
+    "build-cross-env": "cross-env NODE_ENV=production webpack --config build/webpack.dist.cross-env.config.js",
     "dev": "webpack-dev-server --content-base test/ --open --inline --hot --compress --history-api-fallback --port 8081 --config build/webpack.dev.config.js",
     "dist:style": "gulp --gulpfile build/build-style.js",
     "dist:dev": "webpack --config build/webpack.dist.dev.config.js",
