@@ -216,8 +216,8 @@ webpack2默认支持`webpack.optimize.OccurenceOrderPlugin`[见这里](https://g
 
 
 参考:
-Webpack 2: How to extract CSS/LESS modules into CSS files?
-- https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/250
+
+- [Webpack 2: How to extract CSS/LESS modules into CSS files?](https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/250)
 - https://www.google.co.jp/search?newwindow=1&safe=strict&q=extract-text-webpack-plugin++webpack+2++vue2.0&oq=extract-text-webpack-plugin++webpack+2++vue2.0&gs_l=serp.3...29285.31625.0.31967.7.7.0.0.0.0.209.560.0j2j1.3.0....0...1c.1.64.serp..4.0.0.CsIgev7a4n0
 - http://www.qinshenxue.com/article/20161106163608.html
 
@@ -229,7 +229,7 @@ Webpack 2: How to extract CSS/LESS modules into CSS files?
 >请问是否是bug？
 >浏览器提示找不到模块（chrome dev，macOS）
 
-当时我是一脸蒙的，主要修改的是`wepback1.x`到`webpack2.x`兼容性的api,主要的修改是提取了`webpack.base.config.js`打包通用的配置。可是看[源码](https://unpkg.com/iview@2.0.0-rc.2/dist/iview.min.js)中确实含有`options.__file="/User"`。第一想到的是`vue-loader`版本是否不对？用的确实是最新版本。于是搜索下`vue-loader`是否含有`Component.options.__file`?确实有，见这里`https://github.com/vuejs/vue-loader/blob/1d63e9ec610490767b447cee5cf53e00faf905fa/lib/loader.js#L376-L395`。
+当时我是一脸蒙的，主要修改的是`wepback1.x`到`webpack2.x`兼容性的api,主要的修改是提取了`webpack.base.config.js`打包通用的配置。可是看[源码](https://unpkg.com/iview@2.0.0-rc.2/dist/iview.min.js)中确实含有`options.__file="/User"`。第一想到的是`vue-loader`版本是否不对？用的确实是最新版本。于是搜索下`vue-loader`是否含有`Component.options.__file`?确实有，见[这里](https://github.com/vuejs/vue-loader/blob/1d63e9ec610490767b447cee5cf53e00faf905fa/lib/loader.js#L376-L395)。
 
 ```
   // development-only code
@@ -341,6 +341,8 @@ new webpack.DefinePlugin({
  })
 ```
 都是存在`Component.options.__file = "/Users/huixisheng/Workspaces/iview/src/components/icon/icon.vue"`
+
+@todo `webpack.DefinePlugin`是否存在bug？
 
 
 ### NODE_ENV=production  ###
@@ -497,6 +499,8 @@ Cannot create property 'true' on string 'data[0].isLeaf'
 ### 用`v-on`监听原生事件变更
 >现在在组件上使用 v-on 只会监听自定义事件（组件用 $emit 触发的事件）。如果要监听根元素的原生事件，可以使用 .native 修饰符，比如：
 `<Button v-on:click.native="doSomething"></Button>`
+
+@todo
 
 ### Object.entries
 
