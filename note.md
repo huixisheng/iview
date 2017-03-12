@@ -41,7 +41,7 @@ iView升级Vue2.x和webpack2.x记录
 ```
 $ git clone git@github.com:iview/iview.git
 $ cd ivew
-# 最好换淘宝的镜像
+# 最好换淘宝的镜像 --registry=https://registry.npm.taobao.org
 $ sudo npm install
 # 项目跑起来
 $ npm run dev
@@ -53,10 +53,10 @@ $ npm run build
 
 ## 升级为webpack2.x
 
-于是开始升级Vue的版本。然后`npm run dev`，项目已经不能跑起来了。webpack2.x 也出了，索性一起升级吧。
+修改`package.json`vue和webpack的版本。然后`npm run dev`，项目已经不能跑起来了。
 
 ```
-"devDependencies": {  
+"devDependencies": {
   "vue": "^2.2.1",
   "webpack": "^2.2.1",
 },
@@ -65,40 +65,230 @@ $ npm run build
 
 [build/webpack.dev.config.js相关的修改看这里](https://github.com/huixisheng/iview/commit/810ea2014be5e7c2c7e5f5f1954730c0b4f71461#diff-ba41bb69761f93318d458231fcc239a6) [package.json修改看这里](https://github.com/huixisheng/iview/commit/810ea2014be5e7c2c7e5f5f1954730c0b4f71461#diff-b9cfc7f2cdf78a7f4b91a753d10865a2)
 
-webpack主要的修改
 
-- loaders->rules
-- resolve.extensions 不支持为空的配置
-- 需要设置vue的alias。 vue的package.json的main指向的是runtime的版本
-- plugins 插件的方法的参数修改了对象
+## webpack2.x升级注意点
 
-https://github.com/iview/iview/issues/374
->npm安装的iview里的iview.js源码里有Component.options.__file = "/Users/aresn/develop/iview/src/components/icon/icon.vue"
-请问是否是bug？
-浏览器提示找不到模块（chrome dev，macOS）
+### module.loaders 改成了 module.rules
+> 旧的 loader 配置被更强大的 rules 系统取代，后者允许配置 loader 以及其他更多项。为了兼容旧版，module.loaders 语法被保留，旧的属性名依然可以被解析。新的命名约定更易于理解并且是升级配置使用 module.rules 的好理由。
+```
+module: {
+-        loaders: [
+-            { test: /\.vue$/, loader: 'vue' },
+-            { test: /\.js$/, loader: 'babel', exclude: /node_modules/ },
+-            { test: /\.css$/, loader: 'style!css!autoprefixer'},
+-            { test: /\.less$/, loader: 'style!css!less' },
+-            { test: /\.scss$/, loader: 'style!css!sass?sourceMap'},
++        // https://doc.webpack-china.org/guides/migrating/#module-loaders-module-rules
++        rules: [
++            {
++                // https://vue-loader.vuejs.org/en/configurations/extract-css.html
++                test: /\.vue$/,
++                loader: 'vue-loader',
++                options: {
++                    loaders: {
++                        css: ExtractTextPlugin.extract({
++                          use: 'css-loader',
++                          fallback: 'vue-style-loader' // <- this is a dep of vue-loader, so no need to explicitly install if using npm3
++                        })
++                    },
++                    postLoaders: {
++                        html: 'babel-loader'
++                    }
++                }
++            },
++            // { test: /\.vue$/, loader: 'vue' },
++            // Module build failed: Error: The node API for `babel` has been moved to `babel-core`.
++            // https://github.com/babel/babel-loader/blob/master/README.md#the-node-api-for-babel-has-been-moved-to-babel-core
++            {
++                test: /\.js$/,
++                loader: 'babel-loader', exclude: /node_modules/
++            },
++            {
++                test: /\.css$/,
++                use: [
++                    'style-loader',
++                    'css-loader',
++                    'autoprefixer-loader'
++                ]
++            },
++            {
++                test: /\.less$/,
++                use: [
++                    'style-loader',
++                    'css-loader',
++                    'less-loader'
++                ]
++                // loader: 'style!css!less'
++            },
++            {
++                test: /\.scss$/,
++                use: [
++                    'style-loader',
++                    'css-loader',
++                    'sass-loader?sourceMap'
++                ]
++                // loader: 'style!css!sass?sourceMap'
++            },
+         { test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/, loader: 'url-loader?limit=8192'},
+         { test: /\.(html|tpl)$/, loader: 'html-loader' }
+     ]
+ },
+ ```
 
-webpackJsonp is not defined  webpack2
+
+### resolve.extensions 不支持为空的配置
+```
+resolve: {
+     // require时省略的扩展名，如：require('module') 不需要module.js
+-        extensions: ['', '.js', '.vue'],
++        extensions: ['.js', '.vue']
+ },
+```
+## 只使用了vue runtime的版本
 
 ```
 You are using the runtime-only build of Vue where the template option is not available. Either pre-compile the templates into render functions, or use the compiler-included build
 ```
+需要设置vue的alias。
+
+```
+         alias: {
+ -            iview: '../../src/index'
+ +            iview: '../../src/index',
+ +            vue: 'vue/dist/vue.js'
+          }
+```
+参考：
 - https://segmentfault.com/a/1190000006435886
 - https://github.com/vuejs-templates/webpack/issues/215
 
+### plugins 插件的方法的参数修改了对象 ###
 
-Webpack 2: How to extract CSS/LESS modules into CSS files?
-- https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/250
-- https://www.google.co.jp/search?newwindow=1&safe=strict&q=extract-text-webpack-plugin++webpack+2++vue2.0&oq=extract-text-webpack-plugin++webpack+2++vue2.0&gs_l=serp.3...29285.31625.0.31967.7.7.0.0.0.0.209.560.0j2j1.3.0....0...1c.1.64.serp..4.0.0.CsIgev7a4n0
+记得当时有这个报错的`webpackJsonp is not defined  webpack2`。具体升级哪个插件有点忘记了。
 
-提取CSS http://www.qinshenxue.com/article/20161106163608.html
-
-webpack2默认支持`webpack.optimize.OccurenceOrderPlugin`
 ```
 Webpack 2: TypeError: _webpack2.default.optimize.OccurenceOrderPlugin is not a function
 webpack.optimize.OccurenceOrderPlugin is not a constructor
 ```
-https://github.com/webpack/webpack/issues/1964
+webpack2默认支持`webpack.optimize.OccurenceOrderPlugin`[见这里](https://github.com/webpack/webpack/issues/1964)
 
+```
+     plugins: [
+ -        new ExtractTextPlugin("[name].css",{ allChunks : true,resolve : ['modules'] }),             // 提取CSS
+ -        new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors.js'),                           // 提取第三方库
+ +        new ExtractTextPlugin({ filename: '[name].css', disable: false, allChunks: true }),
+ +        // new ExtractTextPlugin("[name].css",{ allChunks : true,resolve : ['modules'] }),             // 提取CSS
+ +        // https://doc.webpack-china.org/plugins/commons-chunk-plugin/
+ +        new webpack.optimize.CommonsChunkPlugin({ name: 'vendors', filename: 'vendor.bundle.js' })
+ +        // new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors.js'),                           // 提取第三方库
+      ]
+```
+
+
+### 如何提取`.vue`文件的css
+
+```
++        rules: [
+ +            {
+ +                // https://vue-loader.vuejs.org/en/configurations/extract-css.html
+ +                test: /\.vue$/,
+ +                loader: 'vue-loader',
+ +                options: {
+ +                    loaders: {
+ +                        css: ExtractTextPlugin.extract({
+ +                          use: 'css-loader',
+ +                          fallback: 'vue-style-loader' // <- this is a dep of vue-loader, so no need to explicitly install if using npm3
+ +                        })
+ +                    },
+ +                    postLoaders: {
+ +                        html: 'babel-loader'
+ +                    }
+ +                }
+ +            },
+```
+```
+     plugins: [
+ -        new ExtractTextPlugin("[name].css",{ allChunks : true,resolve : ['modules'] }),             // 提取CSS
+ +        new ExtractTextPlugin({ filename: '[name].css', disable: false, allChunks: true }),
+```
+
+具体plugins的变动最好看相关的文档。
+
+
+参考:
+Webpack 2: How to extract CSS/LESS modules into CSS files?
+- https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/250
+- https://www.google.co.jp/search?newwindow=1&safe=strict&q=extract-text-webpack-plugin++webpack+2++vue2.0&oq=extract-text-webpack-plugin++webpack+2++vue2.0&gs_l=serp.3...29285.31625.0.31967.7.7.0.0.0.0.209.560.0j2j1.3.0....0...1c.1.64.serp..4.0.0.CsIgev7a4n0
+- http://www.qinshenxue.com/article/20161106163608.html
+
+
+### 社区反映的打包的源码中含有`.vue`的路径
+
+[见issues/374](https://github.com/iview/iview/issues/374)
+>npm安装的iview里的iview.js源码里有Component.options.__file = "/Users/aresn/develop/iview/src/components/icon/icon.vue"
+>请问是否是bug？
+>浏览器提示找不到模块（chrome dev，macOS）
+
+当时我是一脸蒙的，主要修改的是`wepback1.x`到`webpack2.x`兼容性的api,主要的修改是提取了`webpack.base.config.js`打包通用的配置。可是看[源码](https://unpkg.com/iview@2.0.0-rc.2/dist/iview.min.js)中确实含有`options.__file="/User"`。第一想到的是`vue-loader`版本是否不对？用的确实是最新版本。于是搜索下`vue-loader`是否含有`Component.options.__file`?确实有，见这里`https://github.com/vuejs/vue-loader/blob/1d63e9ec610490767b447cee5cf53e00faf905fa/lib/loader.js#L376-L395`。
+
+```
+  // development-only code
+  if (!isProduction) {
+    // add filename in dev
+    output += 'Component.options.__file = ' + JSON.stringify(filePath) + '\n'
+    // check named exports
+    output +=
+      'if (Component.esModule && Object.keys(Component.esModule).some(function (key) {' +
+        'return key !== "default" && key !== "__esModule"' +
+      '})) {' +
+        'console.error("named exports are not supported in *.vue files.")' +
+      '}\n'
+    // check functional components used with templates
+    if (template) {
+      output +=
+        'if (Component.options.functional) {' +
+          'console.error("' +
+          '[vue-loader] ' + fileName + ': functional components are not ' +
+          'supported with templates, they should use render functions.' +
+        '")}\n'
+    }
+  }
+```
+
+` var isProduction = this.minimize || process.env.NODE_ENV === 'production'`。`isProduction`怎么会是`false`?明明设置了
+
+```
+new webpack.DefinePlugin({
+    'process.env': {
+        NODE_ENV: '"production"'
+    }
+})
+```
+
+没有生效吗？相关文档的配置[Vue Production Deployment Tips](https://vuejs.org/v2/guide/deployment.html#With-Build-Tools) [vue-loader](https://vue-loader.vuejs.org/en/workflow/production.html) [DefinePlugin](https://webpack.js.org/plugins/define-plugin/)也确实是这么写的。于是硬着头皮读了一篇[DefinePlugin源码](https://github.com/webpack/webpack/blob/93ac8e9c3699bf704068eaccaceec57b3dd45a14/lib/DefinePlugin.js)，代码有点hold不住。又看了[DefinePlugin测试用例](https://github.com/webpack/webpack/blob/master/test/configCases/plugins/define-plugin/webpack.config.js)怎么写。webpack的配置没什么问题。现在的问题是要让`isProduction`为true。于是进行了一方尝试:
+
+
+### 直接设置`process.env.NODE_ENV = 'production'`
+
+[https://github.com/vuejs-templates/webpack](https://github.com/vuejs-templates/webpack)就是这么实现的
+
+`npm run build` -> `node build/build.js`->`build.js`直接设置了`process.env.NODE_ENV = 'production'`。
+
+### 使用环境变量`cross-env`
+
+
+
+
+
+相关参考
+- https://cnodejs.org/topic/5785b3ef3b501f7054982f69
+- https://github.com/webpack/webpack/issues/2537
+- https://github.com/vuejs/vue-hackernews-2.0/search?utf8=%E2%9C%93&q=NODE_ENV
+- https://segmentfault.com/a/1190000002551952#articleHeader9
+- https://github.com/webpack/webpack/search?p=1&q=DefinePlugin&utf8=%E2%9C%93
+- https://github.com/webpack/webpack/issues/1720
+- https://github.com/webpack/webpack/issues/2537
+- https://github.com/webpack/webpack/issues/868
 
 ## 升级Vue2.x
 
